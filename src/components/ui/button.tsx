@@ -9,6 +9,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        ice: "btn-ice",
+        iceEmerald: "btn-ice ice-emerald",
+        iceRose: "btn-ice ice-rose",
+        iceRoyal: "btn-ice ice-royal",
+        iceAmber: "btn-ice ice-amber",
+        iceViolet: "btn-ice ice-violet",
         default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:

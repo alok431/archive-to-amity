@@ -1,0 +1,3 @@
+[{"capability":"code","source":"archive","outcome":"migrate","status":"verified","next_action":"none"},
+{"capability":"schema/records/auth","source":"none detected (local game state only)","outcome":"not applicable","status":"verified","next_action":"none"},
+{"capability":"ads provider","source":"not connected in source","outcome":"unchanged","status":"accepted","next_action":"none"}]
