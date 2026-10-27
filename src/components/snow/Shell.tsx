@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Bell, Settings, Plus, Crown, Volume2, VolumeX } from "lucide-react";
+import { Settings, Globe, Snowflake, Volume2, VolumeX } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { loadGame, updateGame, useGame } from "@/lib/game-store";
 import { sfx } from "@/lib/sfx";
 import { RewardFloats } from "./RewardFloats";
@@ -59,14 +60,6 @@ function Snowfall() {
   );
 }
 
-export function XpBar({ value = 380, max = 1000, className = "" }: { value?: number; max?: number; className?: string }) {
-  return (
-    <div className={`xp-track relative h-3.5 rounded-full bg-background/90 p-[1px] ${className}`}>
-      <div className="h-full rounded-full bg-[linear-gradient(180deg,oklch(1_0_0/0.6),transparent_50%),linear-gradient(90deg,var(--royal),var(--cyan))] shadow-[0_0_8px_var(--cyan)] transition-[width] duration-1000" style={{ width: `${(value / max) * 100}%` }} />
-    </div>
-  );
-}
-
 export function Avatar({ size = 56, src = avatar }: { size?: number; src?: string }) {
   return (
     <div className="frozen-avatar relative shrink-0" style={{ width: size, height: size }}>
@@ -94,27 +87,19 @@ function SoundToggle() {
 }
 
 export function Header() {
+  const [panel, setPanel] = useState<"settings" | "language" | null>(null);
+  const { sound } = useGame();
   return (
-    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 pt-3">
-      <div className="flex min-w-0 items-center gap-3">
-        <div className="relative">
-          <Avatar size={58} />
-          <span className="absolute -bottom-0.5 -left-0.5 grid h-5 w-5 place-items-center rounded-full border border-ice bg-primary"><Plus size={12} strokeWidth={3} /></span>
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-3d truncate text-lg leading-tight">Snow Explorer</p>
-          <p className="flex items-center gap-1 text-sm text-gold"><Crown size={13} fill="currentColor" /> Lv. 12</p>
-          <div className="mt-1 flex items-center gap-2">
-            <XpBar className="flex-1" />
-            <span className="shrink-0 text-xs text-ice/90">380/1000</span>
-          </div>
-        </div>
-      </div>
+    <header className="quest-header relative flex min-h-28 items-center justify-between gap-2 px-4 py-6">
+      <img src={village} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[70%_40%]" />
+      <div className="quest-header-shade pointer-events-none absolute inset-0" />
+      <div className="relative flex min-w-0 items-center gap-2"><Snowflake className="header-snowflake h-10 w-10 shrink-0 text-cyan" /><div><p className="text-3d text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
       <div className="flex gap-2">
         <SoundToggle />
-        <IconBtn label="Notifications"><Bell size={18} className="text-gold" fill="currentColor" /><span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-destructive" /></IconBtn>
-        <IconBtn label="Settings"><Settings size={18} className="text-crystal" /></IconBtn>
+        <IconBtn label="Settings" onClick={() => setPanel("settings")}><Settings size={18} className="text-crystal" /></IconBtn>
+        <IconBtn label="Language" onClick={() => setPanel("language")}><Globe size={18} className="text-crystal" /></IconBtn>
       </div>
+      <Dialog open={panel !== null} onOpenChange={(v) => { if (!v) setPanel(null); }}><DialogContent className="ice-panel w-[calc(100%-32px)] max-w-sm"><DialogTitle className="text-3d">{panel === "settings" ? "Settings" : "Language"}</DialogTitle><DialogDescription className="text-crystal">{panel === "settings" ? "Sound effects" : "English"}</DialogDescription>{panel === "settings" ? <Button variant="ice" aria-pressed={sound} onClick={() => updateGame((s) => ({ ...s, sound: !s.sound }))}>{sound ? <Volume2 /> : <VolumeX />}{sound ? "Sound On" : "Sound Off"}</Button> : <p className="text-sm text-crystal">More languages coming later.</p>}</DialogContent></Dialog>
     </header>
   );
 }
@@ -167,18 +152,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <ArtworkWarmup />
       <RewardFloats />
       <div className="relative z-10 mx-auto max-w-[480px] pb-36">
-        <div className="relative h-20 overflow-hidden">
-          <img src={village} alt="" className="h-full w-full object-cover object-[70%_40%]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
-          <div className="absolute left-4 top-3 flex items-center gap-1.5">
-            <img src={crystal} alt="" className="h-8 w-8 animate-shimmer" />
-            <div>
-              <p className="text-3d text-xl leading-none">SNOWQUEST</p>
-              <p className="text-[9px] tracking-[0.25em] text-crystal">PLAY · EXPLORE · EARN</p>
-            </div>
-          </div>
-        </div>
-        <div className="-mt-4"><Header /></div>
+        <Header />
         <main className="space-y-5 px-5 pt-6">{children}</main>
       </div>
       <BottomNav />

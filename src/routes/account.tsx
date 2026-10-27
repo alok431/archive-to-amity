@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Wallet, Users, ReceiptText, Gift, Trophy, Settings, HelpCircle, ChevronRight, LogOut, Pencil, Flame, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
-import { Avatar, XpBar, Reward } from "@/components/snow/Shell";
+import { Wallet, Users, ReceiptText, Gift, Trophy, Settings, HelpCircle, ChevronRight, LogOut, Pencil, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { Avatar, Reward } from "@/components/snow/Shell";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/account")({
@@ -39,11 +39,6 @@ function Account() {
             <p className="text-xs text-ice/75">Player ID: 123456789</p>
           </div>
           <Button variant="ice" size="icon" aria-label="Edit profile" className="grid h-10 w-10 place-items-center"><Pencil size={18} /></Button>
-        </div>
-        <div className="mt-3 flex items-center gap-2">
-          <span className="flex shrink-0 items-center gap-1 font-display text-gold"><Flame size={16} fill="currentColor" /> Lv. 12</span>
-          <XpBar className="flex-1" />
-          <span className="text-xs">380/1000</span>
         </div>
       </section>
 
