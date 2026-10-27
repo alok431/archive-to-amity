@@ -21,7 +21,7 @@ import { LuckySpin } from "@/components/snow/LuckySpin";
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    links: [{ rel: "preload", as: "image", href: iceCube, fetchpriority: "high" }],
+    links: [{ rel: "preload", as: "image", href: iceCube, fetchPriority: "high" }],
     meta: [
       { title: "SnowQuest — Frozen Kingdom" },
       { name: "description", content: "Your SnowQuest balance, daily streak, lucky spin and winter events." },
