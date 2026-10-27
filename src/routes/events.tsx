@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Users, BadgeCheck, Copy, Check, Send, Coins, Trophy, Crown, Medal, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Coin } from "@/components/snow/Shell";
@@ -48,10 +48,11 @@ function Events() {
     <div className="grid grid-cols-3 gap-3 pt-2">
       <article className="ice-panel referral-stat flex flex-col items-center p-3 text-center"><Users className="mb-2 h-8 w-8 text-success" /><p className="text-xs text-crystal">Invited</p><p className="text-3d text-2xl">256</p></article>
       <article className="ice-panel referral-stat flex flex-col items-center p-3 text-center"><BadgeCheck className="mb-2 h-8 w-8 text-cyan" /><p className="text-xs text-crystal">Valid</p><p className="text-3d text-2xl">128</p></article>
-      <article className="ice-panel referral-stat flex flex-col items-center p-3 text-center"><Coins className="mb-2 h-8 w-8 text-gold" /><p className="text-xs text-crystal">Earned</p><p className="text-frost-grad mt-1 flex items-center gap-1 font-display text-sm"><Coin className="h-3.5 w-3.5" />25,680 IQ</p></article>
+      <article className="ice-panel referral-stat flex flex-col items-center p-3 text-center"><Coins className="mb-2 h-8 w-8 text-gold" /><p className="text-xs text-crystal">Earned</p><p className="reward-ember mt-1 flex items-center gap-1 font-display text-sm"><Coin className="h-3.5 w-3.5" />25,680</p></article>
     </div>
 
     {/* Leaderboard (demo standings) */}
+    <SeasonHeading />
     <section className="ice-panel snow-cap p-3">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-3d flex items-center gap-1.5 text-lg"><Trophy size={18} className="text-gold" fill="currentColor" /> Top Inviters</h2>
@@ -69,7 +70,7 @@ function Events() {
                 <p className="text-3d truncate text-sm leading-4">{name}</p>
                 <p className="text-[10px] text-crystal">{invites} friends invited</p>
               </div>
-              <span className="text-frost-grad flex items-center gap-1 font-display text-sm"><Coin className="h-3.5 w-3.5" />{earned}</span>
+              <span className="reward-ember flex items-center gap-1 font-display text-sm"><Coin className="h-3.5 w-3.5" />{earned}</span>
             </div>
           );
         })}
@@ -78,10 +79,29 @@ function Events() {
   </>;
 }
 
+/** Weekly season ends every Sunday 23:59:59 UTC (demo countdown). */
+function seasonLeft(now: number) {
+  const d = new Date(now), end = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + ((7 - d.getUTCDay()) % 7), 23, 59, 59);
+  const s = Math.max(0, Math.floor((end - now) / 1000));
+  return { d: Math.floor(s / 86400), h: Math.floor(s / 3600) % 24, m: Math.floor(s / 60) % 60, s: s % 60 };
+}
+function SeasonHeading() {
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => { setNow(Date.now()); const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const left = now ? seasonLeft(now) : null;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return <div className="ice-panel flex items-center justify-between gap-2 px-3 py-2.5">
+    <div><h2 className="ice-title text-xl leading-none">ICE LEADERBOARD</h2><p className="mt-1 text-[10px] text-crystal">Weekly season · resets Sunday</p></div>
+    <div className="flex gap-1" aria-label="Time left in season">
+      {(left ? [[left.d, "D"], [left.h, "H"], [left.m, "M"], [left.s, "S"]] : [["--", "D"], ["--", "H"], ["--", "M"], ["--", "S"]]).map(([v, u]) => <span key={u} className="ice-tile grid w-10 place-items-center py-1"><span className="font-display text-sm leading-none text-ice tabular-nums">{typeof v === "number" ? pad(v) : v}</span><span className="text-[8px] text-crystal">{u}</span></span>)}
+    </div>
+  </div>;
+}
+
 const leaders = [
-  { name: "FrostKing", earned: "48,200 IQ", invites: 412 },
-  { name: "IceQueen", earned: "36,750 IQ", invites: 335 },
-  { name: "SnowFox", earned: "29,480 IQ", invites: 260 },
-  { name: "GlacierMax", earned: "21,930 IQ", invites: 198 },
-  { name: "PolarBear", earned: "17,540 IQ", invites: 154 },
+  { name: "FrostKing", earned: "48,200", invites: 412 },
+  { name: "IceQueen", earned: "36,750", invites: 335 },
+  { name: "SnowFox", earned: "29,480", invites: 260 },
+  { name: "GlacierMax", earned: "21,930", invites: 198 },
+  { name: "PolarBear", earned: "17,540", invites: 154 },
 ];

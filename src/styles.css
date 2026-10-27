@@ -454,3 +454,56 @@ main { text-shadow: 0 1px 2px var(--background); }
   .referral-actions > .referral-link { flex-basis: 100%; }
   .referral-actions > .btn-ice { width: 100%; }
 }
+
+/* Warm aurora-gold reward tint: pops against the icy blues so amounts read first. */
+:root { --reward: oklch(0.88 0.16 82); --reward-deep: oklch(0.6 0.15 55); }
+.reward-ember { color: var(--reward); text-shadow: 0 1px 0 var(--reward-deep), 0 2px 0 var(--background), 0 0 10px color-mix(in oklab, var(--reward) 45%, transparent); }
+.balance-amount .text-gold-grad { font-size: 2.6rem; filter: drop-shadow(0 2px 0 oklch(0.35 0.09 50)) drop-shadow(0 3px 0 oklch(0.22 0.06 45)) drop-shadow(0 0 16px color-mix(in oklab, var(--gold) 70%, transparent)); }
+.balance-amount img { filter: drop-shadow(0 0 8px var(--cyan)); }
+
+/* Framed header: icy panel border instead of a photo background. */
+.quest-header { overflow: visible; margin-bottom: 4px; }
+.header-prism { filter: drop-shadow(0 0 12px color-mix(in oklab, var(--cyan) 70%, transparent)) drop-shadow(0 3px 0 var(--ice-depth-dark)); animation: floaty 4s ease-in-out infinite; }
+
+/* Frosted ice lettering: white-to-cyan gradient, deep blue bevel, glow. */
+.ice-title {
+  font-family: var(--font-display); letter-spacing: .04em;
+  background: linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.97 0.03 210) 38%, oklch(0.85 0.11 215) 52%, var(--crystal) 70%, oklch(0.93 0.06 210) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: .6px oklch(1 0 0 / .55);
+  filter: drop-shadow(0 2px 0 var(--frost)) drop-shadow(0 3px 0 oklch(0.2 0.08 258)) drop-shadow(0 0 10px color-mix(in oklab, var(--cyan) 60%, transparent));
+}
+
+/* Community: 3D logo art, no underlines. */
+.community-tag { border-bottom: 0; color: var(--community-tint); letter-spacing: .08em; }
+.community-logo { filter: drop-shadow(0 3px 0 var(--ice-depth-dark)) drop-shadow(0 0 10px color-mix(in oklab, var(--community-tint) 55%, transparent)); }
+
+/* Ice-chunk game buttons: cracked translucent slab, snow cap on top, icicles below. */
+.ice-chunk {
+  position: relative; display: inline-grid; place-items: center; color: oklch(0.98 0.02 220);
+  font-family: var(--font-display); text-shadow: 0 2px 0 var(--frost), 0 0 8px var(--cyan);
+  border: 2px solid oklch(0.95 0.05 210); border-radius: 12px;
+  background: linear-gradient(160deg, oklch(0.93 0.07 210) 0%, oklch(0.78 0.14 220) 30%, oklch(0.6 0.16 240) 72%, oklch(0.5 0.15 250) 100%);
+  box-shadow: 0 4px 0 var(--ice-depth), 0 7px 0 var(--ice-depth-dark), 0 10px 14px oklch(0 0 0 / .45), inset 0 3px 0 oklch(1 0 0 / .65), inset 0 -6px 10px oklch(0.4 0.14 255 / .6), 0 0 14px color-mix(in oklab, var(--cyan) 40%, transparent);
+  transition: transform .12s, box-shadow .12s, filter .15s; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.ice-chunk::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(115deg, transparent 30%, oklch(1 0 0 / .45) 34%, transparent 38%), linear-gradient(65deg, transparent 62%, oklch(1 0 0 / .3) 64%, transparent 67%); }
+.ice-chunk:hover { filter: brightness(1.08); }
+.ice-chunk:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 var(--ice-depth-dark), 0 0 20px var(--cyan), inset 0 3px 0 oklch(1 0 0 / .5); }
+.ice-chunk:disabled { filter: saturate(.4) brightness(.8); cursor: default; }
+.ice-chunk:focus-visible { outline: 2px solid var(--ice); outline-offset: 3px; }
+.ice-chunk-square { width: 42px; height: 42px; }
+.ice-chunk-square svg { width: 22px; height: 22px; filter: drop-shadow(0 2px 0 var(--frost)); }
+.ice-chunk-big { width: 72px; height: 60px; }
+.ice-chunk-big svg { width: 34px; height: 34px; }
+.ice-chunk-wide { height: 46px; padding-inline: 18px; font-size: 18px; }
+.ice-chunk-snow { position: absolute; left: -3px; right: -3px; top: -9px; height: 16px; pointer-events: none; border-radius: 10px 10px 6px 6px;
+  background: radial-gradient(circle at 18% 70%, oklch(1 0 0) 7px, transparent 7.5px), radial-gradient(circle at 46% 55%, oklch(1 0 0) 9px, transparent 9.5px), radial-gradient(circle at 78% 72%, oklch(1 0 0) 7px, transparent 7.5px), linear-gradient(oklch(0.99 0.01 220), oklch(0.92 0.03 225));
+  background-size: 100% 100%; mask: linear-gradient(#000, #000); clip-path: inset(0 0 0 0 round 10px); box-shadow: 0 2px 0 oklch(0.8 0.05 230); }
+.ice-chunk-icicles { position: absolute; left: 12%; right: 12%; bottom: -11px; height: 12px; pointer-events: none;
+  background: linear-gradient(180deg, oklch(0.9 0.08 215), oklch(0.75 0.14 225 / .3));
+  clip-path: polygon(0 0, 100% 0, 96% 40%, 88% 0, 80% 100%, 72% 0, 60% 60%, 50% 0, 40% 90%, 30% 0, 20% 55%, 10% 0, 4% 70%); filter: drop-shadow(0 0 4px var(--cyan)); }
+
+/* Arcade stage */
+.arcade-stage { background: radial-gradient(ellipse at top, oklch(0.32 0.12 245), var(--background) 70%); padding-bottom: env(safe-area-inset-bottom); }
+.arcade-canvas { display: block; width: 100%; max-height: calc(100dvh - 230px); margin-inline: auto; object-fit: contain; border-radius: 16px; border: 3px solid oklch(0.92 0.06 210); box-shadow: 0 6px 0 var(--ice-depth-dark), 0 0 28px color-mix(in oklab, var(--cyan) 45%, transparent), inset 0 0 20px var(--cyan); touch-action: none; user-select: none; }

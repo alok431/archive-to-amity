@@ -13,7 +13,7 @@ import icAccount from "@/assets/ic-account.webp";
 import avatar from "@/assets/avatar.webp";
 import crystal from "@/assets/crystal.webp";
 import bg from "@/assets/bg.webp";
-import village from "@/assets/village.webp";
+import prismLogo from "@/assets/prism-logo.webp";
 import iceCube from "@/assets/ice-cube.webp";
 
 export const IMG = { avatar, crystal };
@@ -86,39 +86,12 @@ function SoundToggle() {
   );
 }
 
-/* Three-shard crystal prism mark: a tall center facet flanked by two angled shards. */
-function PrismMark({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 64 64" className={className} aria-hidden>
-      <defs>
-        <linearGradient id="prism-face" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#eaf8ff" />
-          <stop offset=".45" stopColor="#42c8ff" />
-          <stop offset="1" stopColor="#087bff" />
-        </linearGradient>
-        <linearGradient id="prism-side" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#bdeaff" />
-          <stop offset="1" stopColor="#176ccb" />
-        </linearGradient>
-      </defs>
-      <path d="M16 22 L24 6 L29 36 L20 48 Z" fill="url(#prism-side)" opacity=".9" transform="rotate(-13 22 30)" />
-      <path d="M48 22 L40 6 L35 36 L44 48 Z" fill="url(#prism-side)" opacity=".9" transform="rotate(13 42 30)" />
-      <path d="M32 2 L43 22 L38 52 L32 62 L26 52 L21 22 Z" fill="url(#prism-face)" />
-      <path d="M32 2 L43 22 L32 29 Z" fill="#ffffff" opacity=".55" />
-      <path d="M32 2 L21 22 L32 29 Z" fill="#bdeaff" opacity=".75" />
-      <path d="M32 29 L38 52 L32 62 Z" fill="#087bff" opacity=".45" />
-    </svg>
-  );
-}
-
 export function Header() {
   const [panel, setPanel] = useState<"settings" | "language" | null>(null);
   const { sound } = useGame();
   return (
-    <header className="quest-header relative flex min-h-24 items-center justify-between gap-2 px-4 pb-10 pt-5">
-      <img src={village} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[70%_40%]" />
-      <div className="quest-header-shade pointer-events-none absolute inset-0" />
-      <div className="relative flex min-w-0 items-center gap-2"><PrismMark className="header-prism h-12 w-12 shrink-0" /><div><p className="text-3d text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
+    <header className="quest-header ice-panel relative mx-3 mt-3 flex items-center justify-between gap-2 px-3 py-3">
+      <div className="relative flex min-w-0 items-center gap-2"><img src={prismLogo} alt="SnowQuest crystal prism" width={56} height={56} className="header-prism h-14 w-14 shrink-0 object-contain" /><div><p className="ice-title text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
       <div className="flex gap-2">
         <SoundToggle />
         <IconBtn label="Settings" onClick={() => setPanel("settings")}><Settings size={18} className="text-crystal" /></IconBtn>
@@ -189,8 +162,8 @@ export function Coin({ className = "h-4 w-4" }: { className?: string }) {
   return <img src={iceCube} alt="" width={20} height={20} className={`shrink-0 object-contain drop-shadow-[0_1px_2px_var(--background)] ${className}`} />;
 }
 
-export function Reward({ v, unit = "IQ" }: { v: string | number; unit?: string }) {
-  return <span className="reward-ember flex items-center gap-1 whitespace-nowrap font-display"><Coin />{v} {unit}</span>;
+export function Reward({ v, unit = "" }: { v: string | number; unit?: string }) {
+  return <span className="reward-ember flex items-center gap-1 whitespace-nowrap font-display"><Coin />{v}{unit && ` ${unit}`}</span>;
 }
 
 export function Chips({ items, active, onChange }: { items: string[]; active: string; onChange: (s: string) => void }) {
