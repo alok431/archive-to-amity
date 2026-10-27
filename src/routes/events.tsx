@@ -1,87 +1,54 @@
-import { Reward } from "@/components/snow/Shell";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Timer } from "lucide-react";
-import trophy from "@/assets/trophy.webp";
-import snowmobile from "@/assets/snowmobile.webp";
-import gifts from "@/assets/gifts.webp";
-import avatar from "@/assets/avatar.webp";
-import warrior from "@/assets/warrior.webp";
-import { Chips } from "@/components/snow/Shell";
+import { Users, BadgeCheck, Copy, Check, Send, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Reward } from "@/components/snow/Shell";
+import { REFERRAL_COMMISSION } from "@/lib/spin-config";
+import gifts from "@/assets/gifts.webp";
 
 export const Route = createFileRoute("/events")({
-  head: () => ({
-    meta: [
-      { title: "Ice Tournament — SnowQuest" },
-      { name: "description", content: "Climb the Ice Leaderboard, join the Snow Race and win the Invite Contest." },
-      { property: "og:title", content: "Ice Tournament — SnowQuest" },
-      { property: "og:description", content: "Leaderboards, races and contests in the frozen kingdom." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () => ({ meta: [
+    { title: "Refer & Earn — SnowQuest" },
+    { name: "description", content: "Your SnowQuest referral link, invited friends and simulated referral earnings." },
+    { property: "og:title", content: "Refer & Earn — SnowQuest" },
+    { property: "og:description", content: "Invite friends to SnowQuest and track your referral activity." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: Events,
 });
 
-const players = [
-  ["SnowKing", "2,580", "5 TON"], ["IceQueen", "1,980", "3 TON"], ["FrostDragon", "1,650", "1 TON"],
-  ["GlacierX", "1,320", "500 IQ"], ["PolarMaster", "1,100", "500 IQ"],
-];
-const medal = "border-2 shadow-[0_2px_0_oklch(0_0_0/0.5),inset_0_2px_0_oklch(1_0_0/0.6)] text-background";
-const rankStyle = [`${medal} border-[oklch(0.95_0.1_95)] bg-[radial-gradient(circle_at_35%_30%,oklch(0.98_0.08_95),var(--gold)_60%,oklch(0.55_0.14_55))]`, `${medal} border-ice bg-[radial-gradient(circle_at_35%_30%,oklch(1_0_0),oklch(0.8_0.02_250)_60%,oklch(0.5_0.02_250))]`, `${medal} border-[oklch(0.85_0.1_60)] bg-[radial-gradient(circle_at_35%_30%,oklch(0.9_0.08_60),oklch(0.62_0.13_50)_60%,oklch(0.4_0.1_45))]`];
-
-function Countdown({ t }: { t: string }) {
-  return <span className="ice-badge inline-flex items-center gap-1 rounded-lg px-2 py-0.5 font-display text-gold"><Timer size={14} /> {t}</span>;
-}
-
+const referralLink = "https://t.me/snowquest_bot?start=123456";
 function Events() {
-  const [cat, setCat] = useState("Leaderboard");
-  return (
-    <>
-      <Chips items={["Leaderboard", "Contests", "Special", "History"]} active={cat} onChange={setCat} />
-      <section className="ice-panel snow-cap overflow-hidden">
-        <div className="relative bg-gradient-to-r from-primary/40 to-royal/30 p-4 pr-24">
-          <p className="text-3d text-2xl">ICE LEADERBOARD</p>
-          <p className="text-sm text-crystal">Top Players Win Huge Rewards</p>
-          <div className="mt-2"><Countdown t="6D 12H 30M" /></div>
-          <img src={trophy} alt="Trophy" width={80} height={80} className="absolute right-2 top-3 h-20 w-20 object-contain" />
-        </div>
-        <div className="grid grid-cols-[28px_minmax(0,1fr)_auto_64px] gap-2 px-3 pt-2 text-xs text-ice/70">
-          <span>#</span><span>Player</span><span>Invites / IQ</span><span className="text-right">Reward</span>
-        </div>
-        <ul className="space-y-1 p-2">
-          {players.map(([n, s, r], i) => (
-            <li key={n} className="grid grid-cols-[28px_minmax(0,1fr)_auto_64px] items-center gap-2 ice-tile px-1.5 py-1.5">
-              <span className={`grid h-6 w-6 place-items-center rounded-full font-display text-sm ${rankStyle[i] ?? "ice-tile !rounded-full"}`}>{i + 1}</span>
-              <span className="flex min-w-0 items-center gap-2">
-                <img src={i % 2 ? avatar : warrior} alt="" className="h-7 w-7 shrink-0 rounded-full border border-crystal object-cover" />
-                <span className="truncate text-sm">{n}</span>
-              </span>
-              <span className="text-sm">{s}</span>
-              <span className="flex justify-end"><Reward v={String(r).replace(" IQ", "")} /></span>
-            </li>
-          ))}
-        </ul>
-        <div className="p-3 pt-0"><Button variant="ice" className="h-auto w-full py-2">View Full Leaderboard</Button></div>
-      </section>
-
-      <Promo title="SNOW RACE EVENT" sub="Race · Play · Earn" time="3D 08H 20M" cta="Join Now" img={snowmobile} />
-      <Promo title="INVITE CONTEST" sub="Invite Friends & Earn Extra" time="5D 06H 40M" cta="Invite Now" img={gifts} purple />
-    </>
-  );
-}
-
-function Promo({ title, sub, time, cta, img, purple }: { title: string; sub: string; time: string; cta: string; img: string; purple?: boolean }) {
-  return (
-    <section className={`ice-panel snow-cap relative overflow-hidden p-4 ${purple ? "bg-gradient-to-r from-deep to-royal/50" : "bg-gradient-to-r from-deep to-primary/40"}`}>
-      <div className="relative z-[1] max-w-[62%] space-y-1.5">
-        <p className="text-3d text-xl leading-tight">{title}</p>
-        <p className="text-sm text-cyan">{sub}</p>
-        <Countdown t={time} />
-        <div><Button variant="ice" className="mt-1 px-5 py-1.5">{cta}</Button></div>
+  const [copied, setCopied] = useState(false);
+  const [notice, setNotice] = useState("");
+  async function copy() {
+    try { await navigator.clipboard.writeText(referralLink); setCopied(true); setNotice("Demo link copied"); }
+    catch { setNotice("Copy unavailable. Select the link to copy it."); }
+  }
+  async function share() {
+    if (navigator.share) {
+      try { await navigator.share({ title: "SnowQuest", text: "Join me in SnowQuest!", url: referralLink }); setNotice("Share opened"); }
+      catch { /* Canceling the share is not an error. */ }
+    } else { await copy(); }
+  }
+  return <>
+    <section className="ice-panel referral-banner p-4">
+      <div className="flex items-start gap-3 pr-20">
+        <span className="referral-emblem grid h-14 w-14 shrink-0 place-items-center text-cyan"><Users size={36} /></span>
+        <div><h1 className="text-3d text-2xl">REFER & EARN</h1><p className="mt-1 text-sm text-crystal">Invite friends and get <strong className="text-gold">{REFERRAL_COMMISSION * 100}% commission</strong> for lifetime!</p></div>
       </div>
-      <img src={img} alt="" className="absolute -right-2 bottom-0 h-36 w-36 animate-floaty object-contain" />
+      <img src={gifts} alt="Frozen referral gifts" className="pointer-events-none absolute right-1 top-2 h-28 w-24 object-contain" />
+      <div className="referral-actions mt-5 flex gap-3">
+        <div className="referral-link flex min-w-0 flex-1 items-center rounded-lg border border-crystal px-2"><input aria-label="Demo referral link" readOnly value={referralLink} className="min-w-0 flex-1 border-0 bg-transparent py-3 text-xs text-crystal shadow-none" /><Button variant="ghost" size="icon" aria-label="Copy referral link" onClick={copy} className="shrink-0 text-cyan">{copied ? <Check /> : <Copy />}</Button></div>
+        <Button variant="ice" onClick={share} className="h-12 px-4"><Send />Share</Button>
+      </div>
+      <p className="mt-3 min-h-4 text-xs text-crystal" role="status">{notice || "Demo referral link · sample stats"}</p>
     </section>
-  );
+    <div className="grid grid-cols-3 gap-3 pt-2">
+      <article className="ice-panel referral-stat flex flex-col items-center p-3 text-center"><Users className="mb-2 h-8 w-8 text-success" /><p className="text-xs text-crystal">Invited</p><p className="text-3d text-2xl">256</p></article>
+      <article className="ice-panel referral-stat flex flex-col items-center p-3 text-center"><BadgeCheck className="mb-2 h-8 w-8 text-cyan" /><p className="text-xs text-crystal">Valid</p><p className="text-3d text-2xl">128</p></article>
+      <article className="ice-panel referral-stat flex flex-col items-center p-3 text-center"><Coins className="mb-2 h-8 w-8 text-gold" /><p className="text-xs text-crystal">Earned</p><span className="mt-1 text-sm"><Reward v="25,680" /></span></article>
+    </div>
+  </>;
 }

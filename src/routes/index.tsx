@@ -16,6 +16,8 @@ import village from "@/assets/village.webp";
 import lantern from "@/assets/lantern.webp";
 import iceCube from "@/assets/ice-cube.webp";
 import { Button } from "@/components/ui/button";
+import { CommunityCards } from "@/components/snow/CommunityCards";
+import { LuckySpin } from "@/components/snow/LuckySpin";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -59,7 +61,7 @@ function Home() {
           <img src={iceCube} alt="Ice cube currency" fetchPriority="high" width={80} height={80} className="h-20 w-20 shrink-0 object-contain" />
           <div className="min-w-0 flex-1 text-center">
             <p className="text-3d flex items-center justify-center gap-1.5 text-sm"><img src={iceCube} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />YOUR BALANCE</p>
-           <p className="font-display text-4xl leading-none text-frost-grad tabular-nums">{balance.toLocaleString("en-US")} <span className="reward-ember text-2xl">IQ</span></p>
+            <p className="reward-ember font-display text-4xl leading-none tabular-nums">{balance.toLocaleString("en-US")} <span className="text-2xl">IQ</span></p>
             <p className="ice-badge mt-1.5 inline-block rounded-full px-3 py-0.5 text-sm text-ice/90">≈ $0.56 (0.59 TON)</p>
           </div>
         </div>
@@ -99,7 +101,7 @@ function Home() {
               </>
             );
             return isToday
-              ? <button key={i} type="button" aria-label={`Claim day ${i + 1} reward`} className={cls} onClick={(e) => claimToday(e.currentTarget)}>{inner}</button>
+              ? <Button variant="ghost" key={i} type="button" aria-label={`Claim day ${i + 1} reward`} className={`${cls} h-auto px-0`} onClick={(e) => claimToday(e.currentTarget)}>{inner}</Button>
               : <div key={i} className={cls}>{inner}</div>;
           })}
         </div>
@@ -111,6 +113,8 @@ function Home() {
         <MiniCard img={tools} title="Task Center" sub="Complete Tasks" cta="Go" to="/tasks" />
         <MiniCard img={wheel} title="Lucky Spin" sub="Win Rewards" cta="Spin" spin />
       </section>
+
+      <CommunityCards />
 
       {/* Event */}
       <section className="ice-panel snow-cap relative overflow-hidden">
@@ -137,7 +141,7 @@ function MiniCard({ img, title, sub, cta, to, spin }: { img: string; title: stri
           <p className="truncate text-xs text-ice/75">{sub}</p>
         </div>
       </div>
-      <div className="mt-3">{to ? <Button variant="ice" asChild className="w-full"><Link to={to}>{cta}</Link></Button> : <Button variant="ice" className="w-full">{cta}</Button>}</div>
+      <div className="mt-3">{to ? <Button variant="ice" asChild className="w-full"><Link to={to}>{cta}</Link></Button> : spin ? <LuckySpin /> : <Button variant="ice" className="w-full">{cta}</Button>}</div>
     </div>
   );
 }
