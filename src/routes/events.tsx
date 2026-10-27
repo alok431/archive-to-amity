@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Users, BadgeCheck, Copy, Check, Send, Coins } from "lucide-react";
+import { Users, BadgeCheck, Copy, Check, Send, Coins, Trophy, Crown, Medal, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Reward } from "@/components/snow/Shell";
+import { Coin } from "@/components/snow/Shell";
 import { REFERRAL_COMMISSION } from "@/lib/spin-config";
 import gifts from "@/assets/gifts.webp";
 
