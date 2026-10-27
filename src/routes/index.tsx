@@ -21,7 +21,7 @@ import { LuckySpin } from "@/components/snow/LuckySpin";
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    links: [{ rel: "preload", as: "image", href: iceCube, fetchpriority: "high" }],
+    links: [{ rel: "preload", as: "image", href: iceCube, fetchPriority: "high" }],
     meta: [
       { title: "SnowQuest — Frozen Kingdom" },
       { name: "description", content: "Your SnowQuest balance, daily streak, lucky spin and winter events." },
@@ -61,7 +61,7 @@ function Home() {
           <img src={iceCube} alt="Ice cube currency" fetchPriority="high" width={80} height={80} className="h-20 w-20 shrink-0 object-contain" />
           <div className="min-w-0 flex-1 text-center">
             <p className="text-3d flex items-center justify-center gap-1.5 text-sm"><img src={iceCube} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />YOUR BALANCE</p>
-            <p className="reward-ember font-display text-4xl leading-none tabular-nums">{balance.toLocaleString("en-US")} <span className="text-2xl">IQ</span></p>
+            <p className="text-frost-grad font-display text-4xl leading-none tabular-nums">{balance.toLocaleString("en-US")} <span className="text-2xl">IQ</span></p>
             <p className="ice-badge mt-1.5 inline-block rounded-full px-3 py-0.5 text-sm text-ice/90">≈ $0.56 (0.59 TON)</p>
           </div>
         </div>
@@ -135,7 +135,7 @@ function MiniCard({ img, title, sub, cta, to, spin }: { img: string; title: stri
   return (
     <div className="ice-panel snow-cap p-3">
       <div className="flex items-center gap-2">
-        <img src={img} alt="" className={`h-12 w-12 shrink-0 object-contain ${spin ? "animate-[spin_12s_linear_infinite]" : ""}`} />
+        <img src={img} alt="" className={`h-12 w-12 shrink-0 object-contain ${spin ? "animate-[spin_7s_linear_infinite] drop-shadow-[0_0_8px_var(--cyan)]" : ""}`} />
         <div className="min-w-0">
           <p className="text-3d truncate">{title}</p>
           <p className="truncate text-xs text-ice/75">{sub}</p>

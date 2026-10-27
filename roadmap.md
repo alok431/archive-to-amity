@@ -14,3 +14,12 @@
 - [x] Implement a demo icy spin wheel.
 - [x] Replace Events categories and competitions with referral presentation.
 - [x] Match all IQ reward colors to Logout and verify flows.
+# Ice polish round 2
+- [x] Replace header snowflake with three-shard crystal prism mark.
+- [x] Blend header into the balance card (deeper fade, tighter overlap).
+- [x] Recolor red balance amounts to the icy frost gradient.
+- [x] Restore the Events leaderboard below referrals.
+- [x] Rework the spin wheel with a 3D frosted rim, studs, gloss and gem hub.
+- [x] Halve community card height with compact 3D icy layout.
+- [x] Add premium Deposit / Withdraw simulation dialogs with a 5% fee (min 10 IQ, min 100 IQ withdrawal).
+- [x] Keep the Lucky Spin thumbnail wheel revolving continuously.

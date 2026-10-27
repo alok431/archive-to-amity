@@ -32,6 +32,7 @@ export function LuckySpin() {
         <DialogTitle className="text-3d text-center text-2xl">FROST FORTUNE</DialogTitle>
         <DialogDescription className="text-center text-crystal">Demo spin · simulated IQ only</DialogDescription>
         <div className="spin-stage mx-auto">
+          <span className="spin-rim" aria-hidden />
           <span className="spin-pointer" aria-hidden />
           <div className="spin-wheel" style={{ transform: `rotate(${rotation}deg)` }}>
             <svg viewBox="0 0 300 300" aria-label="Eight icy reward segments">
@@ -42,6 +43,7 @@ export function LuckySpin() {
               })}
             </svg>
           </div>
+          <span className="spin-gloss" aria-hidden />
           <div className="spin-hub"><Snowflake size={36} /></div>
         </div>
         <div className="min-h-12 text-center" aria-live="polite">

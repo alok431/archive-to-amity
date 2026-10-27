@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Settings, Globe, Snowflake, Volume2, VolumeX } from "lucide-react";
+import { Settings, Globe, Volume2, VolumeX } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { loadGame, updateGame, useGame } from "@/lib/game-store";
 import { sfx } from "@/lib/sfx";
@@ -86,14 +86,39 @@ function SoundToggle() {
   );
 }
 
+/* Three-shard crystal prism mark: a tall center facet flanked by two angled shards. */
+function PrismMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 64 64" className={className} aria-hidden>
+      <defs>
+        <linearGradient id="prism-face" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#eaf8ff" />
+          <stop offset=".45" stopColor="#42c8ff" />
+          <stop offset="1" stopColor="#087bff" />
+        </linearGradient>
+        <linearGradient id="prism-side" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#bdeaff" />
+          <stop offset="1" stopColor="#176ccb" />
+        </linearGradient>
+      </defs>
+      <path d="M16 22 L24 6 L29 36 L20 48 Z" fill="url(#prism-side)" opacity=".9" transform="rotate(-13 22 30)" />
+      <path d="M48 22 L40 6 L35 36 L44 48 Z" fill="url(#prism-side)" opacity=".9" transform="rotate(13 42 30)" />
+      <path d="M32 2 L43 22 L38 52 L32 62 L26 52 L21 22 Z" fill="url(#prism-face)" />
+      <path d="M32 2 L43 22 L32 29 Z" fill="#ffffff" opacity=".55" />
+      <path d="M32 2 L21 22 L32 29 Z" fill="#bdeaff" opacity=".75" />
+      <path d="M32 29 L38 52 L32 62 Z" fill="#087bff" opacity=".45" />
+    </svg>
+  );
+}
+
 export function Header() {
   const [panel, setPanel] = useState<"settings" | "language" | null>(null);
   const { sound } = useGame();
   return (
-    <header className="quest-header relative flex min-h-28 items-center justify-between gap-2 px-4 py-6">
+    <header className="quest-header relative flex min-h-24 items-center justify-between gap-2 px-4 pb-10 pt-5">
       <img src={village} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[70%_40%]" />
       <div className="quest-header-shade pointer-events-none absolute inset-0" />
-      <div className="relative flex min-w-0 items-center gap-2"><Snowflake className="header-snowflake h-10 w-10 shrink-0 text-cyan" /><div><p className="text-3d text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
+      <div className="relative flex min-w-0 items-center gap-2"><PrismMark className="header-prism h-12 w-12 shrink-0" /><div><p className="text-3d text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
       <div className="flex gap-2">
         <SoundToggle />
         <IconBtn label="Settings" onClick={() => setPanel("settings")}><Settings size={18} className="text-crystal" /></IconBtn>
@@ -153,7 +178,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <RewardFloats />
       <div className="relative z-10 mx-auto max-w-[480px] pb-36">
         <Header />
-        <main className="space-y-5 px-5 pt-6">{children}</main>
+        <main className="space-y-5 px-5 pt-1">{children}</main>
       </div>
       <BottomNav />
     </div>
