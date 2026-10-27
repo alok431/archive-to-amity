@@ -52,7 +52,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         sky.addColorStop(0, "#030a1f"); sky.addColorStop(0.6, "#0a2350"); sky.addColorStop(1, "#0f3a73");
         ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
         for (let i = 0; i < 3; i++) {
-          ctx.fillStyle = ["rgba(60,255,200,.10)", "rgba(80,190,255,.10)", "rgba(170,120,255,.08)"][i];
+          ctx.fillStyle = ["rgba(60,255,200,.10)", "rgba(80,190,255,.10)", "rgba(170,120,255,.08)"][i] ?? "transparent";
           ctx.beginPath(); ctx.moveTo(0, 80 + i * 40);
           for (let xx = 0; xx <= W; xx += 20) ctx.lineTo(xx, 80 + i * 40 + Math.sin(xx / 50 + t * (0.6 + i * 0.2)) * 26);
           ctx.lineTo(W, 0); ctx.lineTo(0, 0); ctx.fill();
