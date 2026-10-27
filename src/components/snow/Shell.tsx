@@ -86,7 +86,6 @@ function SoundToggle() {
   );
 }
 
-/* Three-shard crystal prism mark: a tall center facet flanked by two angled shards. */
 export function Header() {
   const [panel, setPanel] = useState<"settings" | "language" | null>(null);
   const { sound } = useGame();
