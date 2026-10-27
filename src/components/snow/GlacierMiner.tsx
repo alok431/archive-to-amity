@@ -32,7 +32,7 @@ export function GlacierMiner() {
     <section className="ice-panel snow-cap p-4 text-center" aria-label="Glacier Miner game">
       <div className="flex items-center justify-between">
         <p className="text-3d text-xl">Glacier Miner</p>
-        <p className="flex items-center gap-1 font-display text-lg text-frost-grad tabular-nums">
+        <p className="reward-ember flex items-center gap-1 font-display text-lg tabular-nums">
           <img src={iceCube} alt="" className="h-6 w-6 object-contain" />{balance.toLocaleString("en-US")}
         </p>
       </div>
