@@ -87,30 +87,6 @@ function SoundToggle() {
 }
 
 /* Three-shard crystal prism mark: a tall center facet flanked by two angled shards. */
-function PrismMark({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 64 64" className={className} aria-hidden>
-      <defs>
-        <linearGradient id="prism-face" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#eaf8ff" />
-          <stop offset=".45" stopColor="#42c8ff" />
-          <stop offset="1" stopColor="#087bff" />
-        </linearGradient>
-        <linearGradient id="prism-side" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#bdeaff" />
-          <stop offset="1" stopColor="#176ccb" />
-        </linearGradient>
-      </defs>
-      <path d="M16 22 L24 6 L29 36 L20 48 Z" fill="url(#prism-side)" opacity=".9" transform="rotate(-13 22 30)" />
-      <path d="M48 22 L40 6 L35 36 L44 48 Z" fill="url(#prism-side)" opacity=".9" transform="rotate(13 42 30)" />
-      <path d="M32 2 L43 22 L38 52 L32 62 L26 52 L21 22 Z" fill="url(#prism-face)" />
-      <path d="M32 2 L43 22 L32 29 Z" fill="#ffffff" opacity=".55" />
-      <path d="M32 2 L21 22 L32 29 Z" fill="#bdeaff" opacity=".75" />
-      <path d="M32 29 L38 52 L32 62 Z" fill="#087bff" opacity=".45" />
-    </svg>
-  );
-}
-
 export function Header() {
   const [panel, setPanel] = useState<"settings" | "language" | null>(null);
   const { sound } = useGame();

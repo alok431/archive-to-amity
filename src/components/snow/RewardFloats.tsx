@@ -8,7 +8,7 @@ export function RewardFloats() {
       {floats.map((f) => (
         <span key={f.id} style={{ left: f.x, top: f.y }}
           className="reward-float reward-ember absolute flex -translate-x-1/2 items-center gap-1 font-display text-2xl">
-          +{f.amount} IQ<img src={iceCube} alt="ice cubes" className="h-7 w-7 object-contain" />
+          +{f.amount}<img src={iceCube} alt="ice cubes" className="h-7 w-7 object-contain" />
         </span>
       ))}
     </div>

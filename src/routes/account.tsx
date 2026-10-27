@@ -54,7 +54,7 @@ function Account() {
 
       <section className="ice-panel panel-royal grid grid-cols-3 divide-x divide-frost/60 py-3 text-center">
         {([["Total Earned", "25,680 IQ"], ["Friends", "128"], ["Rank", "#124"]] as const).map(([l, v]) => (
-          <div key={l}><p className="text-xs text-ice/75">{l}</p>{v.endsWith(" IQ") ? <span className="text-frost-grad flex items-center justify-center gap-1 font-display text-xl"><Coin className="h-4 w-4" />{v.replace(" IQ", "")}</span> : <p className="text-3d text-xl">{v}</p>}</div>
+          <div key={l}><p className="text-xs text-ice/75">{l}</p>{v.endsWith(" IQ") ? <span className="reward-ember flex items-center justify-center gap-1 font-display text-xl"><Coin className="h-4 w-4" />{v.replace(" IQ", "")}</span> : <p className="text-3d text-xl">{v}</p>}</div>
         ))}
       </section>
 
@@ -117,8 +117,8 @@ function WalletDialog({ panel, onClose }: { panel: "deposit" | "withdraw" | null
                   <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Your TON wallet address" className="w-full rounded-lg border px-3 py-2.5 text-sm text-ice outline-none focus:border-cyan" />
                 </label>
                 <div className="ice-tile space-y-1 px-3 py-2 text-sm">
-                  <p className="flex justify-between"><span className="text-crystal">Withdrawal fee (5%, min {WITHDRAW_MIN_FEE} IQ)</span><span className="font-display text-gold">{validAmount ? `${fee.toLocaleString("en-US")} IQ` : "—"}</span></p>
-                  <p className="flex justify-between"><span className="text-crystal">Total deducted</span><span className="text-frost-grad font-display">{validAmount ? `${total.toLocaleString("en-US")} IQ` : "—"}</span></p>
+                  <p className="flex justify-between"><span className="text-crystal">Withdrawal fee (5%, min {WITHDRAW_MIN_FEE} IQ)</span><span className="reward-ember flex items-center gap-1 font-display">{validAmount ? <><Coin className="h-3.5 w-3.5" />{fee.toLocaleString("en-US")}</> : "—"}</span></p>
+                  <p className="flex justify-between"><span className="text-crystal">Total deducted</span><span className="reward-ember flex items-center gap-1 font-display">{validAmount ? <><Coin className="h-3.5 w-3.5" />{total.toLocaleString("en-US")}</> : "—"}</span></p>
                 </div>
                 {tooLow && <p className="text-xs text-gold">Minimum withdrawal is {WITHDRAW_MIN_AMOUNT} IQ.</p>}
               </>
