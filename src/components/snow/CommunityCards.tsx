@@ -1,23 +1,26 @@
 import { useState } from "react";
-import { Megaphone, Percent, MessagesSquare, Send, ChevronRight } from "lucide-react";
+import { Send, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import chest from "@/assets/chest.webp";
+import news from "@/assets/cm-news.webp";
+import proof from "@/assets/cm-proof.webp";
+import bonus from "@/assets/cm-bonus.webp";
+import live from "@/assets/cm-live.webp";
 
 const channels = [
-  { title: "Official Announcements", tag: "NEWS", detail: "Daily news & official updates", Icon: Megaphone, tint: "community-news" },
-  { title: "Cashout Proof", tag: "PROOF", detail: "Withdrawal proofs & payments", Icon: null, tint: "community-proof" },
-  { title: "Promo Code & Drops", tag: "BONUS", detail: "Free codes & secret drops", Icon: Percent, tint: "community-bonus" },
-  { title: "Global Community", tag: "LIVE", detail: "Strategy, discussion & support", Icon: MessagesSquare, tint: "community-live" },
+  { title: "Official Announcements", tag: "NEWS", detail: "Daily news & official updates", img: news, tint: "community-news" },
+  { title: "Cashout Proof", tag: "PROOF", detail: "Withdrawal proofs & payments", img: proof, tint: "community-proof" },
+  { title: "Promo Code & Drops", tag: "BONUS", detail: "Free codes & secret drops", img: bonus, tint: "community-bonus" },
+  { title: "Global Community", tag: "LIVE", detail: "Strategy, discussion & support", img: live, tint: "community-live" },
 ];
 export function CommunityCards() {
   const [selected, setSelected] = useState<string | null>(null);
   return <section className="space-y-3 pt-2">
     <div className="flex items-center gap-2.5"><span className="ice-tile grid h-10 w-10 shrink-0 place-items-center text-cyan"><Send size={20} /></span><div><h2 className="text-3d text-lg">OFFICIAL COMMUNITY</h2><p className="text-[10px] text-crystal">Updates · Proofs · Drops · Support</p></div></div>
     <div className="grid grid-cols-2 gap-x-3.5 gap-y-4">
-      {channels.map(({ title, tag, detail, Icon, tint }) => <article key={title} className={`ice-panel community-card ${tint} flex min-w-0 flex-col p-2`}>
+      {channels.map(({ title, tag, detail, img, tint }) => <article key={title} className={`ice-panel community-card ${tint} flex min-w-0 flex-col p-2`}>
         <div className="flex items-center gap-2">
-          <div className="community-emblem grid h-11 w-11 shrink-0 place-items-center">{Icon ? <Icon size={22} /> : <img src={chest} alt="Frozen treasure chest" className="h-10 w-10 object-contain" />}</div>
+          <img src={img} alt="" width={52} height={52} className="community-logo h-[52px] w-[52px] shrink-0 object-contain" />
           <div className="min-w-0">
             <span className="community-tag text-[9px] font-semibold">{tag}</span>
             <h3 className="text-3d mt-0.5 truncate text-sm leading-4">{title}</h3>

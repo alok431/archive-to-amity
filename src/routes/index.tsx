@@ -61,7 +61,7 @@ function Home() {
           <img src={iceCube} alt="Ice cube currency" fetchPriority="high" width={80} height={80} className="h-20 w-20 shrink-0 object-contain" />
           <div className="min-w-0 flex-1 text-center">
             <p className="text-3d flex items-center justify-center gap-1.5 text-sm"><img src={iceCube} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />YOUR BALANCE</p>
-            <p className="text-frost-grad font-display text-4xl leading-none tabular-nums">{balance.toLocaleString("en-US")} <span className="text-2xl">IQ</span></p>
+            <p className="balance-amount flex items-center justify-center gap-2 font-display text-4xl leading-none tabular-nums"><img src={iceCube} alt="" width={30} height={30} className="h-[30px] w-[30px] object-contain" /><span className="text-gold-grad">{balance.toLocaleString("en-US")}</span></p>
             <p className="ice-badge mt-1.5 inline-block rounded-full px-3 py-0.5 text-sm text-ice/90">≈ $0.56 (0.59 TON)</p>
           </div>
         </div>

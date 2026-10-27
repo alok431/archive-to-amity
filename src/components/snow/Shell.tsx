@@ -13,7 +13,7 @@ import icAccount from "@/assets/ic-account.webp";
 import avatar from "@/assets/avatar.webp";
 import crystal from "@/assets/crystal.webp";
 import bg from "@/assets/bg.webp";
-import village from "@/assets/village.webp";
+import prismLogo from "@/assets/prism-logo.webp";
 import iceCube from "@/assets/ice-cube.webp";
 
 export const IMG = { avatar, crystal };
@@ -115,10 +115,8 @@ export function Header() {
   const [panel, setPanel] = useState<"settings" | "language" | null>(null);
   const { sound } = useGame();
   return (
-    <header className="quest-header relative flex min-h-24 items-center justify-between gap-2 px-4 pb-10 pt-5">
-      <img src={village} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[70%_40%]" />
-      <div className="quest-header-shade pointer-events-none absolute inset-0" />
-      <div className="relative flex min-w-0 items-center gap-2"><PrismMark className="header-prism h-12 w-12 shrink-0" /><div><p className="text-3d text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
+    <header className="quest-header ice-panel relative mx-3 mt-3 flex items-center justify-between gap-2 px-3 py-3">
+      <div className="relative flex min-w-0 items-center gap-2"><img src={prismLogo} alt="SnowQuest crystal prism" width={56} height={56} className="header-prism h-14 w-14 shrink-0 object-contain" /><div><p className="ice-title text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
       <div className="flex gap-2">
         <SoundToggle />
         <IconBtn label="Settings" onClick={() => setPanel("settings")}><Settings size={18} className="text-crystal" /></IconBtn>
@@ -189,8 +187,8 @@ export function Coin({ className = "h-4 w-4" }: { className?: string }) {
   return <img src={iceCube} alt="" width={20} height={20} className={`shrink-0 object-contain drop-shadow-[0_1px_2px_var(--background)] ${className}`} />;
 }
 
-export function Reward({ v, unit = "IQ" }: { v: string | number; unit?: string }) {
-  return <span className="reward-ember flex items-center gap-1 whitespace-nowrap font-display"><Coin />{v} {unit}</span>;
+export function Reward({ v, unit = "" }: { v: string | number; unit?: string }) {
+  return <span className="reward-ember flex items-center gap-1 whitespace-nowrap font-display"><Coin />{v}{unit && ` ${unit}`}</span>;
 }
 
 export function Chips({ items, active, onChange }: { items: string[]; active: string; onChange: (s: string) => void }) {
