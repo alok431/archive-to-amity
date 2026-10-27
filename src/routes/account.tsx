@@ -4,7 +4,7 @@ import { Wallet, Users, ReceiptText, Gift, Trophy, Settings, HelpCircle, Chevron
 import { Avatar, Coin } from "@/components/snow/Shell";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { WITHDRAW_MIN_AMOUNT, withdrawFee, withdrawTotal } from "@/lib/wallet-config";
+import { WITHDRAW_MIN_AMOUNT, WITHDRAW_MIN_FEE, withdrawFee, withdrawTotal } from "@/lib/wallet-config";
 import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/account")({
@@ -117,7 +117,7 @@ function WalletDialog({ panel, onClose }: { panel: "deposit" | "withdraw" | null
                   <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Your TON wallet address" className="w-full rounded-lg border px-3 py-2.5 text-sm text-ice outline-none focus:border-cyan" />
                 </label>
                 <div className="ice-tile space-y-1 px-3 py-2 text-sm">
-                  <p className="flex justify-between"><span className="text-crystal">Withdrawal fee (5%, min {WITHDRAW_MIN_AMOUNT / 10} IQ)</span><span className="font-display text-gold">{validAmount ? `${fee.toLocaleString("en-US")} IQ` : "—"}</span></p>
+                  <p className="flex justify-between"><span className="text-crystal">Withdrawal fee (5%, min {WITHDRAW_MIN_FEE} IQ)</span><span className="font-display text-gold">{validAmount ? `${fee.toLocaleString("en-US")} IQ` : "—"}</span></p>
                   <p className="flex justify-between"><span className="text-crystal">Total deducted</span><span className="text-frost-grad font-display">{validAmount ? `${total.toLocaleString("en-US")} IQ` : "—"}</span></p>
                 </div>
                 {tooLow && <p className="text-xs text-gold">Minimum withdrawal is {WITHDRAW_MIN_AMOUNT} IQ.</p>}
