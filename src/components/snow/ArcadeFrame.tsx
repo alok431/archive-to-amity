@@ -23,7 +23,7 @@ export function ArcadeFrame({ title, hint, phase, score, lives, time, reward, su
   const claim = (el: Element) => {
     if (claimed) return;
     setClaimed(true);
-    if (reward > 0) { updateGame((s) => ({ ...s, balance: s.balance + reward })); celebrate(reward, el); sfx.mine(); }
+    if (reward > 0) { updateGame((s) => ({ ...s, balance: s.balance + reward })); celebrate(reward, el); sfx.chime(); }
   };
   if (!mounted) return null;
   return createPortal(
