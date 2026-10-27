@@ -15,3 +15,5 @@
 - Display bundled artwork through resized WebP derivatives; preserve original source images for future edits while keeping downloads small.
 - Watch configuration is separate from its presentation so block count and ad limits can be tested; without an ad provider, never simulate completed views or credit rewards.
 - Pre-optimize the route-split Watch dialog alongside React at Vite startup to avoid a late optimizer refresh mixing React module versions in an open preview.
+- Keep spin outcomes in a pure shared configuration module, separate from the wheel dialog, so the pointer and credited demo reward use the same selection.
+- Community cards without configured destinations show an unavailable-link dialog; never invent official URLs.
