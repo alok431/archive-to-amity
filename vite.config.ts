@@ -7,6 +7,13 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  vite: {
+    optimizeDeps: {
+      // Watch is route-split: prepare its dialog with React at startup rather
+      // than changing the optimizer version while a preview is already open.
+      include: ["react", "react-dom/client", "react/jsx-runtime", "@radix-ui/react-dialog"],
+    },
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

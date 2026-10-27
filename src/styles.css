@@ -4,28 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
-
 @theme inline {
+  --font-display: "Lilita One", "Fredoka", sans-serif;
+  --font-sans: "Fredoka", system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -45,100 +31,375 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-cyan: var(--cyan);
+  --color-crystal: var(--crystal);
+  --color-ice: var(--ice);
+  --color-royal: var(--royal);
+  --color-gold: var(--gold);
+  --color-ember: var(--ember);
+  --color-frost: var(--frost);
+  --color-deep: var(--deep);
+  --color-success: var(--success);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
-}
-
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --radius: 0.75rem;
+  --background: oklch(0.14 0.04 258);        /* #020B1B */
+  --deep: oklch(0.2 0.05 252);               /* #06182D */
+  --foreground: oklch(0.97 0.02 230);        /* #EAF8FF */
+  --ice: oklch(0.97 0.02 230);
+  --card: oklch(0.2 0.05 252);
+  --card-foreground: oklch(0.97 0.02 230);
+  --popover: oklch(0.2 0.05 252);
+  --popover-foreground: oklch(0.97 0.02 230);
+  --primary: oklch(0.6 0.21 255);            /* #087BFF */
+  --primary-foreground: oklch(0.97 0.02 230);
+  --cyan: oklch(0.78 0.15 220);              /* #00CFFF */
+  --crystal: oklch(0.79 0.13 225);           /* #42C8FF */
+  --royal: oklch(0.55 0.25 290);             /* #803CFF */
+  --gold: oklch(0.84 0.15 75);               /* #FFBD45 */
+  --frost: oklch(0.5 0.15 255);              /* #176CCB */
+  --success: oklch(0.75 0.17 150);
+  --secondary: oklch(0.25 0.06 252);
+  --secondary-foreground: oklch(0.97 0.02 230);
+  --muted: oklch(0.25 0.06 252);
+  --muted-foreground: oklch(0.78 0.06 235);
+  --accent: oklch(0.3 0.08 252);
+  --accent-foreground: oklch(0.97 0.02 230);
+  --destructive: oklch(0.6 0.23 22);
+  --destructive-foreground: oklch(0.97 0.02 230);
+  --border: oklch(0.5 0.15 255);
+  --input: oklch(0.5 0.15 255);
+  --ring: oklch(0.78 0.15 220);
+  --glow-cyan: 0 0 14px color-mix(in oklab, var(--cyan) 60%, transparent);
+  --gradient-btn: linear-gradient(180deg, oklch(0.9 0.1 215), var(--cyan) 45%, var(--primary));
+  --gradient-panel: linear-gradient(180deg, color-mix(in oklab, var(--deep) 92%, var(--primary)), var(--background));
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
-  }
+  * { border-color: var(--color-border); }
+  html, body { background: var(--color-background); color: var(--color-foreground); font-family: var(--font-sans); }
+  body { -webkit-tap-highlight-color: transparent; }
+}
 
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+@utility font-display { font-family: var(--font-display); letter-spacing: 0; }
+
+/* ===== 3D ICE MATERIAL SYSTEM ===== */
+:root {
+  --ice-depth: oklch(0.38 0.14 252);
+  --ice-depth-dark: oklch(0.25 0.1 255);
+  --shadow-ice: 0 5px 0 var(--ice-depth), 0 8px 0 var(--ice-depth-dark), 0 15px 22px color-mix(in oklab, var(--background) 85%, transparent), 0 0 18px color-mix(in oklab, var(--cyan) 28%, transparent);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+  --ice-rim: oklch(0.95 0.05 220);
+  --ice-rim-shadow: 0 0 7px color-mix(in oklab, var(--cyan) 65%, transparent);
+  --ice-crust: linear-gradient(135deg, var(--ice-rim), var(--crystal) 22%, var(--ice) 36%, var(--frost) 52%, var(--crystal) 70%, var(--ice-rim));
+  --ice-emerald: oklch(0.72 0.16 165);
+  --ice-rose: oklch(0.55 0.22 25);
+  --ember: oklch(0.76 0.19 52);
+  --ice-amber: oklch(0.68 0.19 48);
+  --ice-violet: oklch(0.55 0.2 295);
+  --ice-highlight: oklch(1 0 0 / .24);
+  --ice-facet: oklch(1 0 0 / .1);
+  --ice-shade: oklch(0 0 0 / .2);
+  --ice-button-rim: color-mix(in oklab, var(--button-tint) 75%, var(--ice));
+  --shadow-title: 0 1px 0 var(--crystal), 0 2px 0 var(--frost), 0 3px 0 var(--ice-depth-dark), 0 5px 7px var(--background), 0 0 9px color-mix(in oklab, var(--cyan) 40%, transparent);
+  --frozen-surface: linear-gradient(180deg, color-mix(in oklab, var(--ice) 20%, transparent), transparent 32%), linear-gradient(135deg, color-mix(in oklab, var(--cyan) 30%, var(--deep)), color-mix(in oklab, var(--deep) 90%, transparent));
+  --frozen-icon: drop-shadow(0 1px 0 var(--ice)) drop-shadow(0 3px 0 var(--ice-depth-dark)) drop-shadow(0 0 5px var(--cyan));
+}
+
+/* Crystal-ice frozen panel: thick bevel + side depth */
+@utility ice-panel {
+  position: relative;
+  background:
+    var(--frozen-surface);
+  border: 2px solid var(--crystal);
+  border-bottom-color: color-mix(in oklab, var(--frost) 90%, transparent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-ice),
+    inset 0 2px 0 color-mix(in oklab, var(--ice) 65%, transparent), inset 0 0 20px color-mix(in oklab, var(--cyan) 25%, transparent);
+  transition: transform .25s var(--spring);
+}
+
+/* Royal ice: navy with silver bevel */
+@utility panel-royal {
+  border-color: color-mix(in oklab, var(--crystal) 50%, transparent);
+  background: var(--frozen-surface);
+  box-shadow: var(--shadow-ice), inset 0 1px 0 var(--ice-facet);
+}
+
+/* Magical crystal: transparent glowing */
+@utility panel-crystal {
+  background:
+    linear-gradient(135deg, color-mix(in oklab, var(--cyan) 25%, transparent), transparent 40%, color-mix(in oklab, var(--royal) 25%, transparent)),
+    color-mix(in oklab, var(--deep) 75%, transparent);
+  backdrop-filter: blur(8px);
+  border-color: var(--cyan);
+  box-shadow: var(--shadow-ice), inset 0 1px 0 var(--ice-facet);
+}
+
+@utility snow-thin { &::before { padding: 1.5px; } }
+
+@utility lift { &:active { transform: translateY(2px) scale(.99); } }
+
+/* One hollow, faceted crust around the entire perimeter. */
+@utility snow-cap {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--ice-crust);
+    mask: linear-gradient(var(--ice), var(--ice)) content-box, linear-gradient(var(--ice), var(--ice));
+    mask-composite: exclude;
+    opacity: .18;
+    pointer-events: none;
+    z-index: 4;
   }
 }
+
+/* Hanging icicles along bottom edge */
+@utility icicles {
+  &::after {
+    content: "";
+    position: absolute; left: 10%; right: 10%; bottom: -9px; height: 10px;
+    background: linear-gradient(180deg, var(--ice), color-mix(in oklab, var(--crystal) 40%, transparent));
+    clip-path: polygon(0 0,100% 0,96% 40%,93% 0,88% 90%,83% 0,76% 50%,70% 0,62% 100%,55% 0,48% 45%,42% 0,35% 80%,28% 0,20% 55%,14% 0,8% 100%,3% 0);
+    pointer-events: none; z-index: 4;
+  }
+}
+
+/* Thick 3D ice button */
+@utility btn-ice {
+  --button-tint: var(--cyan);
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg, var(--ice-highlight), transparent 28%, var(--ice-facet) 29%, transparent 32%, transparent 68%, var(--ice-facet) 69%, transparent 72%),
+    linear-gradient(180deg, var(--ice-highlight), transparent 40%, var(--ice-shade)),
+    linear-gradient(0deg, color-mix(in oklab, var(--button-tint) 85%, transparent), color-mix(in oklab, var(--button-tint) 70%, transparent)),
+    url("./assets/ice-tex.webp") center / 160px auto;
+  color: var(--ice);
+  font-family: var(--font-display);
+  letter-spacing: 0;
+  text-shadow: 0 2px 0 oklch(0.28 0.13 255), 0 0 1px oklch(0.28 0.13 255), 0 0 10px color-mix(in oklab, var(--primary) 70%, transparent);
+  border-radius: var(--radius);
+  border: 2px solid var(--ice-button-rim);
+  box-shadow:
+    0 5px 0 var(--ice-depth), 0 7px 0 var(--ice-depth-dark),
+    0 12px 18px color-mix(in oklab, var(--background) 80%, transparent),
+    0 4px 22px color-mix(in oklab, var(--cyan) 55%, transparent),
+    inset 0 1px 0 var(--ice-highlight), inset 0 -4px 8px color-mix(in oklab, var(--button-tint) 55%, transparent);
+  transition: transform .35s var(--spring), box-shadow .2s, filter .2s;
+  &:hover { transform: translateY(-2px); filter: brightness(1.1) saturate(1.1); }
+  &:active {
+    transform: translateY(5px);
+    transition-duration: .06s;
+    filter: brightness(1.2);
+    box-shadow: 0 1px 0 var(--ice-depth), 0 2px 0 var(--ice-depth-dark), 0 0 28px var(--cyan),
+      inset 0 2px 0 oklch(1 0 0 / .9), inset 0 0 14px var(--cyan);
+  }
+  &::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, oklch(1 0 0 / .55) 45%, transparent 55%) -150% 0 / 200% 100% no-repeat;
+    animation: glint 4.5s ease-in-out infinite;
+  }
+}
+
+/* Saturated frozen glass: visible texture and facets, without a white wash. */
+@utility ice-solid {
+  background:
+    linear-gradient(132deg, var(--ice-highlight), transparent 22%, var(--ice-facet) 23%, transparent 26%, transparent 72%, var(--ice-facet) 73%, transparent 76%),
+    linear-gradient(180deg, var(--ice-facet), transparent 45%, var(--ice-shade)),
+    linear-gradient(180deg, color-mix(in oklab, var(--button-tint) 84%, transparent), color-mix(in oklab, var(--button-tint) 92%, transparent)),
+    url("./assets/ice-tex.webp") center / 200px auto;
+  border-color: var(--ice-button-rim);
+  text-shadow: 0 2px 0 color-mix(in oklab, var(--button-tint) 40%, var(--background));
+  box-shadow: 0 5px 0 color-mix(in oklab, var(--button-tint) 45%, var(--background)), 0 8px 18px color-mix(in oklab, var(--background) 80%, transparent),
+    0 0 12px color-mix(in oklab, var(--button-tint) 25%, transparent), inset 0 1px 0 var(--ice-highlight), inset 0 -3px 0 var(--ice-shade);
+  &::after { opacity: .25; }
+  &:active { box-shadow: 0 1px 0 color-mix(in oklab, var(--button-tint) 45%, var(--background)), inset 0 1px 0 var(--ice-highlight); }
+}
+@utility ice-emerald { --button-tint: var(--ice-emerald); @apply ice-solid; }
+@utility ice-rose { --button-tint: var(--ice-rose); @apply ice-solid; }
+@utility ice-royal { --button-tint: var(--royal); @apply ice-solid; }
+@utility ice-amber { --button-tint: var(--ice-amber); @apply ice-solid; }
+@utility ice-violet { --button-tint: var(--ice-violet); @apply ice-solid; }
+@utility cube-medallion {
+  background: transparent;
+}
+
+/* Small 3D ice tile for icons */
+@utility ice-tile {
+  position: relative;
+  border-radius: var(--radius);
+  border: 2px solid var(--crystal);
+  border-bottom-color: var(--frost);
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / .4), transparent 45%),
+    linear-gradient(160deg, color-mix(in oklab, var(--crystal) 45%, transparent), oklch(0.16 0.07 258 / .9)),
+    url("./assets/ice-tex.webp") center / 90px auto;
+  box-shadow: 0 3px 0 var(--ice-depth), 0 5px 0 var(--ice-depth-dark), inset 0 2px 0 var(--ice-highlight), inset 0 0 10px color-mix(in oklab, var(--cyan) 40%, transparent);
+  transition: transform .3s var(--spring);
+  &:active { transform: translateY(3px); }
+  & svg { filter: drop-shadow(0 2px 0 oklch(0.25 0.1 255)) drop-shadow(0 0 6px var(--cyan)); }
+}
+
+@utility chip {
+  border-radius: 0.7rem;
+  font-family: var(--font-display);
+  letter-spacing: 0;
+  border: 2px solid color-mix(in oklab, var(--frost) 95%, transparent);
+  border-top-color: color-mix(in oklab, var(--crystal) 80%, transparent);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--crystal) 18%, transparent), transparent 50%), color-mix(in oklab, var(--deep) 90%, transparent);
+  box-shadow: 0 3px 0 var(--ice-depth-dark), inset 0 1px 0 oklch(1 0 0 / .3);
+  transition: transform .3s var(--spring);
+  &:active { transform: translateY(2px); }
+  &[data-active="true"] {
+    background: linear-gradient(180deg, oklch(1 0 0 / .6), oklch(1 0 0 / .1) 45%, transparent 55%),
+      linear-gradient(0deg, color-mix(in oklab, var(--cyan) 50%, transparent), color-mix(in oklab, var(--cyan) 50%, transparent)),
+      url("./assets/ice-tex.webp") center / 140px auto;
+    color: oklch(1 0 0);
+    text-shadow: 0 2px 0 oklch(0.28 0.13 255);
+    border-color: oklch(0.95 0.05 220);
+    box-shadow: 0 3px 0 var(--ice-depth), 0 0 16px var(--cyan), inset 0 2px 0 oklch(1 0 0 / .8);
+  }
+}
+
+@utility stone {
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / .35), transparent 30%),
+    radial-gradient(ellipse at 50% 40%, color-mix(in oklab, var(--cyan) 35%, transparent), transparent 65%),
+    linear-gradient(160deg, oklch(0.45 0.14 240 / .75), oklch(0.18 0.08 258 / .9)),
+    url("./assets/ice-tex.webp") center / 180px auto;
+  border: 1px solid color-mix(in oklab, var(--crystal) 60%, transparent);
+  border-bottom-color: var(--frost);
+  box-shadow: var(--shadow-ice), inset 0 1px 0 var(--ice-facet);
+  transition: transform .35s var(--spring), box-shadow .15s;
+  &:active { transform: translateY(6px); box-shadow: 0 1px 0 oklch(0.17 0.03 255), 0 0 26px var(--cyan), inset 0 0 18px color-mix(in oklab, var(--cyan) 45%, transparent); transition-duration: .06s; }
+}
+
+@utility text-3d {
+  font-family: var(--font-display);
+  color: oklch(1 0 0);
+  text-shadow: var(--shadow-title);
+}
+
+@utility quest-switch {
+  border: 1px solid color-mix(in oklab, var(--crystal) 30%, transparent);
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--deep) 85%, transparent);
+}
+@utility ad-progress {
+  padding: 4px;
+  border: 1px solid color-mix(in oklab, var(--crystal) 25%, transparent);
+  border-radius: var(--radius);
+  background: var(--background);
+  box-shadow: inset 0 2px 4px var(--ice-shade);
+}
+@utility watch-block {
+  background: var(--frozen-surface);
+}
+@utility nav-cube { filter: drop-shadow(0 3px 4px var(--background)) drop-shadow(0 0 7px color-mix(in oklab, var(--cyan) 35%, transparent)); }
+@utility nav-dock { box-shadow: 0 -4px 20px color-mix(in oklab, var(--background) 75%, transparent), inset 0 1px 0 var(--ice-facet); }
+@utility balance-panel { border: 1.5px solid var(--crystal); box-shadow: var(--shadow-ice), inset 0 0 18px color-mix(in oklab, var(--cyan) 18%, transparent); }
+
+@layer base {
+  * { letter-spacing: 0 !important; }
+}
+
+@utility text-glow { text-shadow: 0 2px 0 oklch(0.3 0.12 255), 0 0 12px color-mix(in oklab, var(--cyan) 75%, transparent); }
+@utility text-gold-grad {
+  background: linear-gradient(180deg, oklch(0.99 0.06 95) 0%, oklch(0.92 0.13 88) 30%, var(--gold) 52%, oklch(0.62 0.16 55) 75%, oklch(0.85 0.13 80) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 2px 0 oklch(0.35 0.09 50)) drop-shadow(0 3px 0 oklch(0.22 0.06 45)) drop-shadow(0 0 10px color-mix(in oklab, var(--gold) 50%, transparent));
+}
+
+@keyframes glint { 0%, 70% { background-position: -150% 0; } 100% { background-position: 250% 0; } }
+@keyframes dock-shimmer { from { transform: translateX(-120%); } to { transform: translateX(420%); } }
+@keyframes rise { 0% { transform: translateY(0); } 60% { transform: translateY(-9px); } 100% { transform: translateY(-6px); } }
+@utility animate-dock { animation: dock-shimmer 6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+@keyframes snowfall { from { transform: translate3d(0,-10vh,0); } to { transform: translate3d(30px,110vh,0); } }
+@keyframes shimmer { 0%,100% { filter: drop-shadow(0 0 6px var(--cyan)) brightness(1); } 50% { filter: drop-shadow(0 0 16px var(--cyan)) brightness(1.25); } }
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes page-in { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+@utility animate-shimmer { animation: shimmer 2.6s ease-in-out infinite; }
+@utility animate-floaty { animation: floaty 3s ease-in-out infinite; }
+@utility animate-page { animation: page-in 0.35s ease-out; }
+
+/* Nine-slice painted ice: preserve the snow, cracks and icicles at every size. */
+.ice-panel::before, .stone::before, .ice-tile::before, .btn-ice::before, .chip::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 14px solid transparent;
+  border-image: url("./assets/frozen-frame.webp") 150 stretch;
+  border-radius: inherit;
+  background: none;
+  mask: none;
+  opacity: 1;
+  padding: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.ice-panel { overflow: visible; }
+.ice-panel::before { border-width: 15px; }
+.ice-panel > * { position: relative; }
+.ice-panel > img.absolute, .ice-panel > div.absolute { position: absolute; }
+.ice-tile::before { inset: -3px; border-width: 7px; }
+.stone::before { border-width: 12px; }
+.btn-ice::before { inset: -4px; border-width: 8px; }
+.chip { position: relative; isolation: isolate; }
+.chip::before { inset: -3px; border-width: 6px; }
+.ice-solid::before, .ice-emerald::before, .ice-rose::before, .ice-royal::before { border-width: 6px; opacity: .8; }
+.ice-rose::before { filter: hue-rotate(155deg) saturate(.7); }
+.ice-emerald::before { filter: hue-rotate(-45deg); }
+.ice-royal::before { filter: hue-rotate(55deg); }
+.ice-amber::before { filter: hue-rotate(185deg) saturate(.8); }
+.ice-violet::before { filter: hue-rotate(80deg); }
+.ice-amber::before, .ice-violet::before { border-width: 6px; opacity: .8; }
+.reward-ember { color: var(--ember); text-shadow: 0 1px 0 oklch(0.4 0.14 40), 0 2px 0 oklch(0.25 0.08 35), 0 0 10px color-mix(in oklab, var(--ember) 60%, transparent); }
+.text-frost-grad { background: linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.95 0.06 210) 35%, var(--cyan) 60%, oklch(0.62 0.15 235) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 0 oklch(0.3 0.1 250)) drop-shadow(0 3px 0 oklch(0.18 0.06 255)) drop-shadow(0 0 12px color-mix(in oklab, var(--cyan) 70%, transparent)); text-shadow: none; }
+.watch-ad .ad-progress > span { height: .5rem; }
+.watch-ad .ad-progress { grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 2px; padding: 2px; border-radius: 6px; }
+.stone { background: var(--frozen-surface), url("./assets/ice-tex.webp") center / 180px auto; box-shadow: var(--shadow-ice); }
+.ice-panel { background: var(--frozen-surface), url("./assets/ice-tex.webp") center / 280px auto; }
+.quest-switch { border: 2px solid var(--crystal); box-shadow: 0 4px 0 var(--ice-depth-dark), inset 0 2px 0 var(--ice-highlight); background: var(--frozen-surface); }
+.quest-switch [role="tab"][aria-selected="false"] { background: var(--frozen-surface); color: var(--crystal); text-shadow: var(--shadow-title); border: 1px solid var(--frost); }
+.ad-progress { border: 2px solid var(--crystal); box-shadow: 0 2px 0 var(--ice-depth-dark), inset 0 2px 4px var(--background); }
+.ad-progress > span { background: linear-gradient(180deg, var(--crystal), var(--frost)); box-shadow: inset 0 1px 0 var(--ice-highlight), 0 1px 0 var(--ice-depth-dark); opacity: .55; }
+.watch-block h2, .font-display:not(.text-gold-grad):not(.text-frost-grad):not(.reward-ember), nav a { text-shadow: var(--shadow-title); }
+.ice-panel svg, .btn-ice svg, .ice-tile svg, .chip svg { filter: var(--frozen-icon); stroke-width: 2.5; }
+.ice-lettering { color: var(--ice); text-shadow: var(--shadow-title); }
+.text-gold-grad { text-shadow: none; }
+.frozen-avatar { padding: 3px; border: 2px solid var(--ice); border-radius: 50%; background: var(--ice-crust); box-shadow: 0 3px 0 var(--ice-depth), 0 0 15px var(--cyan), inset 0 2px 0 var(--ice); }
+.xp-track { border: 2px solid var(--ice); box-shadow: 0 3px 0 var(--ice-depth-dark), inset 0 2px 4px var(--background), 0 0 7px var(--cyan); }
+.ice-badge { border: 1px solid var(--ice); background: var(--frozen-surface); box-shadow: 0 3px 0 var(--ice-depth-dark), inset 0 1px 0 var(--ice-highlight); text-shadow: var(--shadow-title); }
+.ice-glyph { background: linear-gradient(180deg, var(--ice), var(--crystal) 40%, var(--primary)); color: var(--background); box-shadow: inset 0 2px 0 var(--ice), 0 3px 0 var(--ice-depth-dark), 0 0 8px var(--cyan); }
+.nav-dock { background: var(--frozen-surface); box-shadow: var(--shadow-ice), inset 0 2px 0 var(--ice); }
+.nav-dock::before { border-width: 13px; inset: -5px; }
+.nav-dock a[data-status="active"] { color: var(--ice); }
+.nav-dock a[data-status="active"] > span:first-child { filter: drop-shadow(0 0 8px var(--cyan)); }
+.balance-panel { background: var(--frozen-surface); box-shadow: var(--shadow-ice), inset 0 0 24px var(--cyan); }
+main > *, main [role="tabpanel"] > * { margin-bottom: 6px; }
+main input { background: var(--frozen-surface); border-color: var(--crystal); box-shadow: inset 0 3px 5px var(--background), 0 2px 0 var(--ice-depth-dark); }
+main { text-shadow: 0 1px 2px var(--background); }
+@media (max-width: 380px) {
+  .ice-panel::before { border-width: 11px; inset: -4px; }
+}
+
+/* Simulation feedback */
+.reward-float { animation: reward-float 1.3s ease-out forwards; text-shadow: 0 0 12px var(--cyan), 0 2px 0 var(--background); }
+@keyframes reward-float { 0% { opacity: 0; transform: translate(-50%, 0) scale(.6); } 15% { opacity: 1; transform: translate(-50%, -14px) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -90px) scale(1); } }
+.streak-today { animation: streak-pulse 1.4s ease-in-out infinite; }
+@keyframes streak-pulse { 0%,100% { box-shadow: 0 0 0 0 var(--cyan); } 50% { box-shadow: 0 0 16px 2px var(--cyan); } }
+.streak-locked { filter: saturate(.4) brightness(.75); }
+.miner-crystal { transition: transform .08s ease-out; filter: drop-shadow(0 0 22px var(--cyan)); }
+.miner-crystal:active { transform: scale(.9) rotate(-3deg); }
+.ad-progress > span.filled { background: linear-gradient(180deg, var(--crystal), var(--cyan)); box-shadow: 0 0 6px var(--cyan); }
+.ad-countdown { animation: shimmer 1s ease-in-out infinite; }
