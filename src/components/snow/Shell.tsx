@@ -115,10 +115,10 @@ export function Header() {
   const [panel, setPanel] = useState<"settings" | "language" | null>(null);
   const { sound } = useGame();
   return (
-    <header className="quest-header relative flex min-h-28 items-center justify-between gap-2 px-4 py-6">
+    <header className="quest-header relative flex min-h-24 items-center justify-between gap-2 px-4 pb-10 pt-5">
       <img src={village} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[70%_40%]" />
       <div className="quest-header-shade pointer-events-none absolute inset-0" />
-      <div className="relative flex min-w-0 items-center gap-2"><Snowflake className="header-snowflake h-10 w-10 shrink-0 text-cyan" /><div><p className="text-3d text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
+      <div className="relative flex min-w-0 items-center gap-2"><PrismMark className="header-prism h-12 w-12 shrink-0" /><div><p className="text-3d text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
       <div className="flex gap-2">
         <SoundToggle />
         <IconBtn label="Settings" onClick={() => setPanel("settings")}><Settings size={18} className="text-crystal" /></IconBtn>
@@ -178,7 +178,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <RewardFloats />
       <div className="relative z-10 mx-auto max-w-[480px] pb-36">
         <Header />
-        <main className="space-y-5 px-5 pt-6">{children}</main>
+        <main className="space-y-5 px-5 pt-1">{children}</main>
       </div>
       <BottomNav />
     </div>
