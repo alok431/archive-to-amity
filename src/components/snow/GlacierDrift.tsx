@@ -98,7 +98,7 @@ export function GlacierDrift({ onExit }: { onExit: () => void }) {
   const reward = arcadeReward("drift", { score: hud.dist, gems: hud.gems });
   return (
     <ArcadeFrame title="GLACIER DRIFT" hint="Switch lanes to dodge ice boulders and grab glowing cubes. Survive 60 seconds!"
-      phase={phase} score={`${hud.dist} m · ${hud.gems} 💎`} lives={hud.lives} time={hud.time} reward={reward}
+      phase={phase} score={`${hud.dist} m · ${hud.gems} cubes`} lives={hud.lives} time={hud.time} reward={reward}
       summary={`${hud.dist} m drifted · ${hud.gems} cubes grabbed`} onStart={() => setPhase("playing")} onExit={onExit}>
       <div className="w-full">
         <canvas ref={cv} className="arcade-canvas" style={{ aspectRatio: `${W}/${H}` }}
