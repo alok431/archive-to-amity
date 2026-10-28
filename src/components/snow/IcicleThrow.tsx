@@ -49,7 +49,8 @@ export function IcicleThrow({ onExit }: { onExit: () => void }) {
         if (!alive) return;
         if (paused.current) { last = now; raf = requestAnimationFrame(frame); return; }
         const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
-        const wobble = stage > 2 ? Math.sin(t * 1.3) * 0.9 : 0;
+        const boss = stage % 4 === 0;
+        const wobble = boss ? Math.sin(t * 1.1) * 3.4 : stage > 2 ? Math.sin(t * 1.3) * 0.9 : 0;
         if (!dead) rot += (spin + wobble) * dt;
         if (g.current.throwReq && flying === null && !dead) { flying = H - 70; sfx.tap(); }
         g.current.throwReq = false;
@@ -99,10 +100,11 @@ export function IcicleThrow({ onExit }: { onExit: () => void }) {
 
   const reward = arcadeReward("icicle", { score: hud.cleared, gems: hud.gems });
   return (
-    <ArcadeFrame title="ICICLE THROW" hint="Tap to launch icicles into the spinning Frost Core. Never hit another icicle!"
-      phase={phase} score={`Stage ${hud.stage} · ${hud.left} left`} reward={reward}
+    <ArcadeFrame title="ICICLE THROW" hint="Tap to launch icicles into the spinning Frost Core. Never hit another icicle! Every 4th stage a Frost Boss core swings back and forth."
+      phase={phase} pausedRef={paused} ratio={W / H} reward={reward}
+      stats={[{ label: "STAGE", value: hud.stage % 4 === 0 ? `${hud.stage} BOSS` : hud.stage }, { label: "ICICLES", value: hud.left }, { label: "CLEARED", value: hud.cleared }, { label: "CUBES", value: hud.gems }]}
       summary={`${hud.cleared} stages cleared · ${hud.gems} cubes shattered`} onStart={() => setPhase("playing")} onExit={onExit}>
-      <canvas ref={cv} className="arcade-canvas" style={{ aspectRatio: `${W}/${H}` }} onPointerDown={fire} />
+      <canvas ref={cv} className="arcade-canvas" onPointerDown={fire} />
     </ArcadeFrame>
   );
 }
