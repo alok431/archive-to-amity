@@ -21,6 +21,7 @@ function icicle(ctx: CanvasRenderingContext2D, x: number, y: number, ang: number
 export function IcicleThrow({ onExit }: { onExit: () => void }) {
   const cv = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<Phase>("ready");
+  const paused = useRef(false);
   const [hud, setHud] = useState({ stage: 1, cleared: 0, gems: 0, left: icicleStageTarget(1) });
   const g = useRef({ throwReq: false });
   const fire = () => { if (phase === "playing") g.current.throwReq = true; };
@@ -46,6 +47,7 @@ export function IcicleThrow({ onExit }: { onExit: () => void }) {
     loadImages({ target: targetSrc, gem: cubeSrc }).then((img) => {
       const frame = (now: number) => {
         if (!alive) return;
+        if (paused.current) { last = now; raf = requestAnimationFrame(frame); return; }
         const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
         const wobble = stage > 2 ? Math.sin(t * 1.3) * 0.9 : 0;
         if (!dead) rot += (spin + wobble) * dt;
