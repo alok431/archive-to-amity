@@ -11,6 +11,9 @@ describe("arcade rewards", () => {
   it("striker pays 2 per meteor plus 3 per gem", () => {
     expect(arcadeReward("striker", { score: 20, gems: 1 })).toBe(43);
   });
+  it("tower pays 1 per 2 rings plus 10 per tower cleared", () => {
+    expect(arcadeReward("tower", { score: 41, gems: 1 })).toBe(30);
+  });
   it("caps every run at 150", () => {
     expect(ARCADE_REWARD_CAP).toBe(150);
     expect(arcadeReward("striker", { score: 999, gems: 99 })).toBe(150);
