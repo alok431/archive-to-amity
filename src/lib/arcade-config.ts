@@ -23,6 +23,5 @@ export function arcadeReward(game: ArcadeGame, { score, gems }: ArcadeStats): nu
 
 /** Icicles needed to clear a Frost Core stage (stage starts at 1). */
 export function icicleStageTarget(stage: number): number {
-  if (game === "tower") raw = Math.floor(s / 2) + g * 10; // score = rings smashed, gems = towers cleared
   return Math.min(12, 5 + stage);
 }
