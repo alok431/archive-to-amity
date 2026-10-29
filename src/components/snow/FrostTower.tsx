@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArcadeFrame, Hearts, drawFlakes, makeFlakes, setupCanvas, type Phase } from "./ArcadeFrame";
+import bgSrc from "@/assets/tower-bg.webp";
 import { ARCADE_LIVES, TOWER_RINGS, arcadeReward } from "@/lib/arcade-config";
 import { sfx } from "@/lib/sfx";
 
@@ -17,18 +18,31 @@ function makeRing(level: number, i: number): Ring {
   return { off: i * 0.22 + Math.sin(i * 0.5) * 0.6, dark };
 }
 
-/** Draw one ice ring band of the tower between angles a0..a1 in pseudo-3D. */
-function band(ctx: CanvasRenderingContext2D, cy: number, a0: number, a1: number, dark: boolean, shade: number) {
-  const steps = 6;
+const IN = 0.34; // inner hole radius ratio (pole shows through)
+/** Draw one 3D ice ring segment between angles a0..a1: outer side wall, then a glossy top face. */
+function band(ctx: CanvasRenderingContext2D, cy: number, a0: number, a1: number, dark: boolean, shade: number, front: boolean) {
+  const steps = 7, pt = (a: number, r: number, dy = 0): [number, number] => [CX + Math.cos(a) * RX * r, cy + Math.sin(a) * RY * r + dy];
+  if (front) {
+    ctx.beginPath();
+    for (let k = 0; k <= steps; k++) ctx.lineTo(...pt(a0 + ((a1 - a0) * k) / steps, 1));
+    for (let k = steps; k >= 0; k--) ctx.lineTo(...pt(a0 + ((a1 - a0) * k) / steps, 1, THICK));
+    ctx.closePath();
+    const g = ctx.createLinearGradient(0, cy, 0, cy + RY + THICK);
+    if (dark) { g.addColorStop(0, "#2a3350"); g.addColorStop(1, "#05070f"); }
+    else { g.addColorStop(0, `rgba(90,200,255,${0.75 + shade * 0.25})`); g.addColorStop(1, "rgba(10,70,160,.95)"); }
+    ctx.fillStyle = g; ctx.fill();
+  }
   ctx.beginPath();
-  for (let k = 0; k <= steps; k++) { const a = a0 + ((a1 - a0) * k) / steps; ctx.lineTo(CX + Math.cos(a) * RX, cy + Math.sin(a) * RY); }
-  for (let k = steps; k >= 0; k--) { const a = a0 + ((a1 - a0) * k) / steps; ctx.lineTo(CX + Math.cos(a) * RX, cy + Math.sin(a) * RY + THICK); }
+  for (let k = 0; k <= steps; k++) ctx.lineTo(...pt(a0 + ((a1 - a0) * k) / steps, 1));
+  for (let k = steps; k >= 0; k--) ctx.lineTo(...pt(a0 + ((a1 - a0) * k) / steps, IN));
   ctx.closePath();
-  const g = ctx.createLinearGradient(0, cy - RY, 0, cy + RY + THICK);
-  if (dark) { g.addColorStop(0, `rgba(${40 + shade * 30},${50 + shade * 30},${80 + shade * 30},1)`); g.addColorStop(1, "#070b18"); }
-  else { g.addColorStop(0, `rgba(${170 + shade * 70},${235 + shade * 20},255,1)`); g.addColorStop(1, `rgba(${40 + shade * 40},${140 + shade * 50},${220},1)`); }
-  ctx.fillStyle = g; ctx.fill();
-  ctx.strokeStyle = dark ? "rgba(120,140,190,.35)" : "rgba(255,255,255,.6)"; ctx.lineWidth = 1; ctx.stroke();
+  const mid = (a0 + a1) / 2, lit = 0.5 + 0.5 * Math.cos(mid + 2.2); // light from upper-left
+  const tg = ctx.createLinearGradient(...pt(mid, IN), ...pt(mid, 1));
+  if (dark) { tg.addColorStop(0, "#3a4566"); tg.addColorStop(1, `rgba(${30 + lit * 60},${36 + lit * 60},${60 + lit * 70},1)`); }
+  else { tg.addColorStop(0, "rgba(200,245,255,.95)"); tg.addColorStop(1, `rgba(${120 + lit * 120},${215 + lit * 40},255,${0.85 + shade * 0.15})`); }
+  ctx.fillStyle = tg; ctx.fill();
+  ctx.strokeStyle = dark ? "rgba(140,160,210,.4)" : "rgba(255,255,255,.85)"; ctx.lineWidth = 1.2; ctx.stroke();
+  if (!dark && lit > 0.7) { ctx.strokeStyle = "rgba(255,255,255,.7)"; ctx.lineWidth = 2; ctx.beginPath(); for (let k = 1; k < steps; k++) ctx.lineTo(...pt(a0 + ((a1 - a0) * k) / steps, 0.86)); ctx.stroke(); }
 }
 
 export function FrostTower({ onExit }: { onExit: () => void }) {
@@ -42,6 +56,7 @@ export function FrostTower({ onExit }: { onExit: () => void }) {
     if (phase !== "playing") return;
     const ctx = setupCanvas(cv.current!, W, H);
     const flakes = makeFlakes(40, W, H);
+    const bgImg = new Image(); bgImg.src = bgSrc;
     let level = 1, broken = 0, cleared = 0, lives = ARCADE_LIVES, left = TOWER_RINGS, rot = 0, t = 0, bounce = 0, smashT = 0, streak = 0, fever = 0, hurt = 0, scroll = 0, flash = 0;
     let rings: Ring[] = Array.from({ length: TOWER_RINGS }, (_, i) => makeRing(level, i));
     let pieces: Piece[] = [];
@@ -86,16 +101,18 @@ export function FrostTower({ onExit }: { onExit: () => void }) {
       } else { streak = Math.max(0, streak - dt * 6); bounce += dt * 7; }
 
       // background
-      const bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, "#0a1c48"); bg.addColorStop(0.6, "#1a4b8f"); bg.addColorStop(1, "#5aa6dc");
-      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-      for (let i = 0; i < 2; i++) { ctx.fillStyle = i ? "rgba(140,110,255,.08)" : "rgba(60,255,200,.1)"; ctx.beginPath(); ctx.moveTo(0, 60 + i * 50); for (let xx = 0; xx <= W; xx += 20) ctx.lineTo(xx, 60 + i * 50 + Math.sin(xx / 60 + t * 0.7 + i) * 26); ctx.lineTo(W, 0); ctx.lineTo(0, 0); ctx.fill(); }
-      ctx.fillStyle = "rgba(220,240,255,.35)"; ctx.beginPath(); ctx.moveTo(0, H); for (let xx = 0; xx <= W; xx += 30) ctx.lineTo(xx, H - 60 - Math.abs(Math.sin(xx / 47)) * 70); ctx.lineTo(W, H); ctx.fill();
-      // crystal pole
-      const pg = ctx.createLinearGradient(CX - 34, 0, CX + 34, 0);
-      pg.addColorStop(0, "#9fd4f2"); pg.addColorStop(0.45, "#ffffff"); pg.addColorStop(1, "#7fb8e0");
-      ctx.fillStyle = pg; ctx.fillRect(CX - 34, 0, 68, H);
-      ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.fillRect(CX - 20, 0, 6, H);
+      if (bgImg.complete && bgImg.naturalWidth) { const k = Math.max(W / bgImg.naturalWidth, H / bgImg.naturalHeight); ctx.drawImage(bgImg, (W - bgImg.naturalWidth * k) / 2, (H - bgImg.naturalHeight * k) / 2 - 20 + Math.sin(t * 0.3) * 6, bgImg.naturalWidth * k, bgImg.naturalHeight * k); }
+      else { ctx.fillStyle = "#0a1c48"; ctx.fillRect(0, 0, W, H); }
+      const vg = ctx.createRadialGradient(CX, H * 0.45, 80, CX, H * 0.45, 420); vg.addColorStop(0, "rgba(0,10,30,0)"); vg.addColorStop(1, "rgba(0,10,30,.55)");
+      ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+      // frosted crystal pole with facets
+      const PR = RX * IN * 0.92;
+      const pg = ctx.createLinearGradient(CX - PR, 0, CX + PR, 0);
+      pg.addColorStop(0, "rgba(120,190,235,.95)"); pg.addColorStop(0.35, "rgba(255,255,255,.98)"); pg.addColorStop(0.6, "rgba(200,235,255,.95)"); pg.addColorStop(1, "rgba(90,160,220,.95)");
+      ctx.fillStyle = pg; ctx.fillRect(CX - PR, 0, PR * 2, H);
+      ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.lineWidth = 1;
+      for (let yy = (-scroll * 0.5 + t * 0) % 46 - 46; yy < H; yy += 46) { ctx.beginPath(); ctx.moveTo(CX - PR, yy); ctx.lineTo(CX + PR * 0.2, yy + 30); ctx.lineTo(CX + PR, yy + 12); ctx.stroke(); }
+      ctx.shadowColor = "#7ff0ff"; ctx.shadowBlur = 24; ctx.fillStyle = "rgba(255,255,255,.4)"; ctx.fillRect(CX - PR * 0.55, 0, 5, H); ctx.shadowBlur = 0;
       // rings (bottom first so upper rings overlap)
       const visible = Math.min(rings.length, 16);
       for (let i = visible - 1; i >= 0; i--) {
@@ -106,14 +123,15 @@ export function FrostTower({ onExit }: { onExit: () => void }) {
         for (const pass of [0, 1]) for (let k = 0; k < SEG; k++) {
           const a0 = k * (TAU / SEG) + r.off + rot, mid = a0 + TAU / SEG / 2;
           if ((Math.sin(mid) > 0 ? 1 : 0) !== pass) continue;
-          band(ctx, cy, a0 + 0.02, a0 + TAU / SEG - 0.02, r.dark[k]!, shade * (pass ? 1 : 0.6));
+          band(ctx, cy, a0 + 0.03, a0 + TAU / SEG - 0.03, r.dark[k]!, shade * (pass ? 1 : 0.6), pass === 1);
         }
       }
       // shattered pieces
       for (const p of pieces) {
         p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 900 * dt; p.r += p.vr * dt; p.l -= dt;
         ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.globalAlpha = Math.max(0, p.l);
-        ctx.fillStyle = p.dark ? "#1b2236" : "#bdf0ff"; ctx.fillRect(-14, -6, 28, 12);
+        ctx.fillStyle = p.dark ? "#1b2236" : "rgba(170,235,255,.9)"; ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(-16, -4); ctx.lineTo(10, -9); ctx.lineTo(16, 4); ctx.lineTo(-8, 9); ctx.closePath(); ctx.fill(); if (!p.dark) ctx.stroke();
         ctx.restore();
       }
       ctx.globalAlpha = 1; pieces = pieces.filter((p) => p.l > 0 && p.y < H + 40);
