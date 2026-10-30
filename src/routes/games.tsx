@@ -33,7 +33,7 @@ type Id = "drift" | "icicle" | "striker" | "tower";
 const games: { id: Id; n: string; d: string; img: string; len: string }[] = [
   { id: "drift", n: "Glacier Drift", d: "Dodge · Drift · Earn", img: drift, len: "60s" },
   { id: "icicle", n: "Icicle Throw", d: "Aim · Stick · Earn", img: icicle, len: "1–2 min" },
-  { id: "striker", n: "Blizzard Striker", d: "Fly · Shoot · Earn", img: striker, len: "90s" },
+  { id: "striker", n: "Blizzard Striker", d: "Fly · Shoot · Earn", img: striker, len: "150s" },
   { id: "tower", n: "Frost Tower", d: "Hold · Smash · Earn", img: tower, len: "1–2 min" },
 ];
 
