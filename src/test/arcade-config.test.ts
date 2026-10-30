@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { arcadeReward, icicleStageTarget, ARCADE_REWARD_CAP } from "@/lib/arcade-config";
+import { arcadeReward, icicleStageTarget, ARCADE_REWARD_CAP, STRIKER_BOSS_AT, STRIKER_SECONDS } from "@/lib/arcade-config";
 
 describe("arcade rewards", () => {
   it("drift pays 1 per 50 distance plus 2 per crystal", () => {
@@ -13,6 +13,10 @@ describe("arcade rewards", () => {
   });
   it("tower pays 1 per 2 rings plus 10 per tower cleared", () => {
     expect(arcadeReward("tower", { score: 41, gems: 1 })).toBe(30);
+  });
+  it("striker boss arrives at 100s, before the run ends", () => {
+    expect(STRIKER_BOSS_AT).toBe(100);
+    expect(STRIKER_SECONDS).toBeGreaterThan(STRIKER_BOSS_AT);
   });
   it("caps every run at 150", () => {
     expect(ARCADE_REWARD_CAP).toBe(150);
