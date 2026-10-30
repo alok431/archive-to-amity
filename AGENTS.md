@@ -17,3 +17,4 @@
 - Pre-optimize the route-split Watch dialog alongside React at Vite startup to avoid a late optimizer refresh mixing React module versions in an open preview.
 - Keep spin outcomes in a pure shared configuration module, separate from the wheel dialog, so the pointer and credited demo reward use the same selection.
 - Community cards without configured destinations show an unavailable-link dialog; never invent official URLs.
+- Keep Blizzard Striker balancing, enemy volleys and plane progression in a pure shared configuration module used by gameplay and tests, so visible upgrades and difficulty stay consistent.
