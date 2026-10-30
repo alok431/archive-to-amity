@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArcadeFrame, Hearts, drawFlakes, loadImages, makeFlakes, setupCanvas, type Phase } from "./ArcadeFrame";
-import { ARCADE_LIVES, STRIKER_SECONDS, arcadeReward } from "@/lib/arcade-config";
+import { ARCADE_LIVES, STRIKER_BOSS_AT, STRIKER_SECONDS, arcadeReward } from "@/lib/arcade-config";
 import { sfx } from "@/lib/sfx";
 import jetSrc from "@/assets/sp-jet.webp";
 import rockSrc from "@/assets/sp-boulder.webp";
@@ -8,10 +8,10 @@ import cubeSrc from "@/assets/ice-cube.webp";
 import enemySrc from "@/assets/sp-enemy.webp";
 import bossSrc from "@/assets/sp-boss.webp";
 
-const W = 360, H = 600, BOSS_AT = 45, BOSS_HP = 70, POWER_SECONDS = 10;
+const W = 360, H = 600, BOSS_AT = STRIKER_BOSS_AT, BOSS_HP = 110, POWER_SECONDS = 10;
 const GUNS = ["Blaster", "Twin", "Spread"] as const;
 
-type Enemy = { x: number; y: number; px: number; py: number; t: number; hp: number; s: number; fire: number; rock?: boolean; rot: number; step: (e: Enemy, dt: number) => void; leave?: boolean };
+type Enemy = { kind?: "fighter" | "tank" | "sniper"; x: number; y: number; px: number; py: number; t: number; hp: number; s: number; fire: number; rock?: boolean; rot: number; step: (e: Enemy, dt: number) => void; leave?: boolean };
 type Bullet = { x: number; y: number; vx: number; vy: number };
 type Drop = { x: number; y: number; kind: "gem" | "gun" | "shield" | "drone" };
 type Bit = { x: number; y: number; vx: number; vy: number; l: number; c: string };
@@ -38,7 +38,8 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
     const key = (e: KeyboardEvent) => { const k = e.key; if (k === "ArrowLeft") target.current.x -= 40; if (k === "ArrowRight") target.current.x += 40; if (k === "ArrowUp") target.current.y -= 40; if (k === "ArrowDown") target.current.y += 40; };
     window.addEventListener("keydown", key);
 
-    const add = (step: Enemy["step"], x0: number, y0: number, delay = 0, hp = 1, s = 40) => foes.push({ x: x0, y: y0, px: x0, py: y0, t: -delay, hp, s, fire: 1 + Math.random() * 2, rot: 0, step });
+    const tier = () => Math.floor(t / 30); // difficulty rises every 30s
+    const add = (step: Enemy["step"], x0: number, y0: number, delay = 0, hp = 1, s = 40, kind: Enemy["kind"] = "fighter") => foes.push({ kind, x: x0, y: y0, px: x0, py: y0, t: -delay, hp: hp + tier(), s, fire: 1 + Math.random() * 2, rot: 0, step });
     const aimAt = (e: Enemy, speed: number) => { const a = Math.atan2(y - e.y, x - e.x); hostile.push({ x: e.x, y: e.y + 12, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed }); };
 
     // Formations that fly like a real shooter: V-wing, snake, side swoops, divers and a box grid.
@@ -48,6 +49,10 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
       () => { const side = Math.random() < 0.5 ? 0 : 1; for (let i = 0; i < 6; i++) add((e) => { const a = e.t * 1.05, R = 300, d = side ? -1 : 1; e.x = (side ? W + 30 : -30) + d * Math.sin(a) * R; e.y = 30 + (1 - Math.cos(a)) * R * 0.85; }, side ? W + 30 : -30, 30, i * 0.28); },
       () => { for (let i = 0; i < 3; i++) { const sx = 70 + i * 110; let tx = sx, vy = 0; add((e, dt) => { if (e.t < 1) { e.y = -40 + e.t * 170; e.x = sx; tx = x; } else if (e.t < 1.7) { e.x += Math.sin(e.t * 30) * 1.2; } else { vy += 620 * dt; e.y += vy * dt; e.x += (tx - e.x) * Math.min(1, dt * 2); } }, sx, -40, i * 0.5, 2, 44); } },
       () => { for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) add((e) => { const hx = 60 + c * 80 + Math.sin(t * 0.9) * 40, hy = 70 + r * 56; e.x = hx; e.y = e.t < 1.4 ? -60 + (hy + 60) * (e.t / 1.4) : e.t < 7 ? hy : hy + (e.t - 7) * 260; }, 60 + c * 80, -60, r * 0.2 + c * 0.1, 2); },
+      // Heavy ice tank: slow, tough, fires 5-way spreads
+      () => { const cx = 80 + Math.random() * (W - 160); add((e) => { e.x = cx + Math.sin(e.t * 0.8) * 60; e.y = e.t < 2 ? -50 + e.t * 75 : e.t < 10 ? 100 : 100 + (e.t - 10) * 120; }, cx, -50, 0, 7, 70, "tank"); },
+      // Snipers: slide in from both sides and fire fast aimed shots
+      () => { for (const side of [0, 1]) add((e) => { const hx = side ? W - 40 : 40; e.x = side ? W + 40 - Math.min(80, e.t * 90) : -40 + Math.min(80, e.t * 90); e.y = 160 + Math.sin(e.t * 1.6) * 70; if (e.t > 7) e.x += (side ? 1 : -1) * (e.t - 7) * 160; void hx; }, side ? W + 40 : -40, 160, side * 0.4, 2, 38, "sniper"); },
     ];
     const burst = (bx: number, by: number, n: number, c: string, sp = 260) => { for (let i = 0; i < n; i++) bits.push({ x: bx, y: by, vx: (Math.random() - 0.5) * sp, vy: (Math.random() - 0.5) * sp, l: 0.5 + Math.random() * 0.4, c }); };
     const hitPlayer = () => {
@@ -56,7 +61,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
       lives--; hurt = 1.4; shake = 0.4; gun = Math.max(0, gun - 1); sfx.crack(); burst(x, y, 16, "#9feaff", 320);
     };
     const killFoe = (e: Enemy) => {
-      kills++; const pts = e.rock ? 5 : 10 * (e.s > 42 ? 2 : 1); score += pts; txts.push({ x: e.x, y: e.y, l: 0.8, s: `+${pts}` }); sfx.mine();
+      kills++; const pts = e.rock ? 5 : e.kind === "tank" ? 60 : e.kind === "sniper" ? 30 : 10 * (e.s > 42 ? 2 : 1); score += pts; txts.push({ x: e.x, y: e.y, l: 0.8, s: `+${pts}` }); sfx.mine();
       burst(e.x, e.y, 12, e.rock ? "#cfefff" : "#ff7ad9");
       const r = Math.random();
       if (r < 0.12) drops.push({ x: e.x, y: e.y, kind: "gem" });
@@ -89,8 +94,10 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         if (bossState === "wait" && t >= BOSS_AT && foes.length === 0) { bossState = "live"; boss = { x: W / 2, y: -90, hp: BOSS_HP, t: 0, a: 1.2, b: 0.5 }; sfx.crack(); }
         waveT -= dt;
         if (waveT <= 0 && (bossState !== "live" || foes.length < 3) && !(bossState === "wait" && t > BOSS_AT - 3)) {
-          if (bossState === "live") waves[3]!(); else waves[wave % waves.length]!();
-          wave++; waveT = bossState === "live" ? 6 : Math.max(2.4, 4.2 - t / 40);
+          const pool = t < 20 ? 3 : t < 45 ? 5 : waves.length; // unlock harder enemy types over time
+          if (bossState === "live") waves[Math.random() < 0.5 ? 3 : 6]!();
+          else { waves[wave % pool]!(); if (t > 60 && Math.random() < 0.5) waves[Math.floor(Math.random() * waves.length)]!(); }
+          wave++; waveT = bossState === "live" ? 6 : Math.max(1.6, 4.2 - t / 30);
         }
         rockT -= dt;
         if (rockT <= 0 && bossState !== "live") { const s = 34 + Math.random() * 26, sx = 30 + Math.random() * (W - 60), v = 120 + Math.random() * 80, vr = (Math.random() - 0.5) * 2; foes.push({ x: sx, y: -40, px: sx, py: -40, t: 0, hp: s > 50 ? 3 : 2, s, fire: 99, rock: true, rot: 0, step: (e, d) => { e.y += v * d; e.rot += vr * d; } }); rockT = 2.5 + Math.random() * 2; }
@@ -98,7 +105,11 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         for (const e of foes) {
           e.px = e.x; e.py = e.y; e.t += dt; if (e.t < 0) continue;
           e.step(e, dt);
-          if (!e.rock && e.y > 20 && e.y < H * 0.6) { e.fire -= dt; if (e.fire <= 0) { aimAt(e, 190 + t); e.fire = 1.8 + Math.random() * 2.2; } }
+          if (!e.rock && e.y > 20 && e.y < H * 0.6) { e.fire -= dt; { if (e.fire <= 0) {
+            if (e.kind === "tank") { for (const sp of [-0.5, -0.25, 0, 0.25, 0.5]) hostile.push({ x: e.x, y: e.y + 26, vx: Math.sin(sp) * 170, vy: Math.cos(sp) * 170 }); e.fire = 1.6; }
+            else if (e.kind === "sniper") { aimAt(e, 300 + t * 1.5); e.fire = 1.1; }
+            else { aimAt(e, 180 + t * 1.4); e.fire = Math.max(0.9, 2.4 - t / 60) + Math.random() * 1.5; }
+          } } }
         }
         if (boss) {
           boss.t += dt;
@@ -169,7 +180,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
           if (e.t < 0) continue;
           ctx.save(); ctx.translate(e.x, e.y);
           if (e.rock) { ctx.rotate(e.rot); ctx.drawImage(img.rock, -e.s / 2, -e.s / 2, e.s, e.s); }
-          else { const vx = e.x - e.px, vy = e.y - e.py; if (Math.abs(vx) + Math.abs(vy) > 0.2) e.rot += (-Math.atan2(vx, Math.max(0.5, vy)) * 0.8 - e.rot) * 0.2; ctx.rotate(e.rot); ctx.shadowColor = "#ff5ccf"; ctx.shadowBlur = 12; ctx.drawImage(img.foe, -e.s / 2, -e.s / 2, e.s, e.s); }
+          else { const vx = e.x - e.px, vy = e.y - e.py; if (Math.abs(vx) + Math.abs(vy) > 0.2) e.rot += (-Math.atan2(vx, Math.max(0.5, vy)) * 0.8 - e.rot) * 0.2; ctx.rotate(e.rot); ctx.shadowColor = e.kind === "tank" ? "#ffb35a" : e.kind === "sniper" ? "#a8ff6a" : "#ff5ccf"; ctx.shadowBlur = e.kind === "tank" ? 26 : 12; if (e.kind === "sniper") ctx.filter = "hue-rotate(110deg)"; if (e.kind === "tank") ctx.filter = "hue-rotate(-60deg) saturate(1.4)"; ctx.drawImage(img.foe, -e.s / 2, -e.s / 2, e.s, e.s); ctx.filter = "none"; }
           ctx.restore();
         }
         if (boss) {
@@ -216,7 +227,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
   const scale = (el: HTMLElement) => W / el.getBoundingClientRect().width;
   const reward = arcadeReward("striker", { score: hud.kills, gems: hud.gems });
   return (
-    <ArcadeFrame title="BLIZZARD STRIKER" hint="Drag anywhere to fly. Your jet fires automatically — grab 2x / 3x guns, shields and wing drones. Survive the waves and beat the Frost Titan!"
+    <ArcadeFrame title="BLIZZARD STRIKER" hint="Drag anywhere to fly. Your jet fires automatically — grab 2x / 3x guns, shields and wing drones. Enemies get tougher every 30 seconds — heavy tanks and snipers join the fight. The Frost Titan arrives at 100s!"
       phase={phase} pausedRef={paused} ratio={W / H} reward={reward}
       stats={[{ label: "SCORE", value: hud.score }, { label: "LIVES", value: <Hearts n={hud.lives} /> }, { label: "GUN", value: GUNS[hud.gun] }, { label: "BOSS IN", value: typeof hud.boss === "number" ? `${hud.boss}s` : hud.boss }]}
       summary={`${hud.score} points · ${hud.kills} kills · ${hud.gems} cubes`} onStart={() => setPhase("playing")} onExit={onExit}>
