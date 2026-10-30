@@ -3,7 +3,7 @@ export type ArcadeGame = "drift" | "icicle" | "striker" | "tower";
 
 export const ARCADE_REWARD_CAP = 150;
 export const DRIFT_SECONDS = 60;
-export const STRIKER_SECONDS = 150;
+export const STRIKER_SECONDS = 200;
 /** Seconds into a Blizzard Striker run before the Frost Titan boss arrives. */
 export const STRIKER_BOSS_AT = 100;
 export const ARCADE_LIVES = 3;
