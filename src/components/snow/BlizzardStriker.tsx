@@ -60,7 +60,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
       const volley = strikerEnemyVolley(e.kind ?? "fighter");
       const speed = strikerDifficulty(t).bulletSpeed * volley.speedMultiplier;
       const angle = volley.aimed ? Math.atan2(y - e.y, x - e.x) : Math.PI / 2;
-      if (hostile.length + volley.offsets.length <= STRIKER_MAX_HOSTILE) volley.offsets.forEach((offset, i) => hostile.push({ x: e.x + (volley.ports[i] ?? 0), y: e.y + e.s * 0.3, vx: Math.cos(angle + offset) * speed, vy: Math.sin(angle + offset) * speed, delay: volley.delays[i] ?? 0, kind: e.kind }));
+      if (hostile.length + volley.offsets.length <= STRIKER_MAX_HOSTILE) volley.offsets.forEach((offset, i) => hostile.push({ x: e.x + (volley.ports[i] ?? 0), y: e.y + e.s * 0.3, vx: Math.cos(angle + offset) * speed, vy: Math.sin(angle + offset) * speed, delay: volley.delays[i] ?? 0, kind: e.kind ?? "fighter" }));
       e.fire = volley.cooldown + Math.random() * 0.8;
     };
 
@@ -121,7 +121,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         waveT -= dt;
         if (waveT <= 0 && bossState !== "live" && foes.length < 9 && !(bossState === "wait" && t > BOSS_AT - 8)) {
           const pool = t < 20 ? 3 : t < 45 ? 5 : waves.length;
-          const nextWave = t >= 25 && wave % 3 === 2 ? waves[7] : waves[wave % pool];
+          const nextWave = waves[wave % pool];
           nextWave?.();
           wave++; waveT = strikerDifficulty(t).waveSeconds;
         }
