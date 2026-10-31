@@ -4,9 +4,18 @@ import { strikerDifficulty, strikerEnemyVolley, strikerUpgrade, strikerPlaneSize
 
 describe("Blizzard Striker balancing", () => {
   it("lasts 200 seconds", () => expect(STRIKER_SECONDS).toBe(200));
-  it("caps late wave speed and enemy toughness", () => {
-    expect(strikerDifficulty(170)).toEqual({ tier: 3, hpBonus: 2, waveSeconds: 4, bulletSpeed: 170 });
-    expect(strikerDifficulty(200)).toEqual(strikerDifficulty(170));
+  it("increases difficulty every 30 seconds across the 200-second run", () => {
+    const stages = [0, 30, 60, 90, 120, 150, 180].map(strikerDifficulty);
+    expect(stages.map((s) => s.tier)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    for (let i = 1; i < stages.length; i++) {
+      const previous = stages[i - 1], current = stages[i];
+      if (!previous || !current) throw new Error("Missing difficulty stage");
+      expect(current.waveSeconds).toBeLessThan(previous.waveSeconds);
+      expect(current.bulletSpeed).toBeGreaterThan(previous.bulletSpeed);
+      expect(current.fireRate).toBeGreaterThan(previous.fireRate);
+      expect(current.movementSpeed).toBeGreaterThan(previous.movementSpeed);
+    }
+    expect(strikerDifficulty(200)).toEqual(strikerDifficulty(180));
   });
   it("has enemies firing two and three bullets per volley", () => {
     expect(strikerEnemyVolley("twin").offsets).toHaveLength(2);
@@ -30,7 +39,7 @@ describe("Blizzard Striker balancing", () => {
     expect(strikerUpgrade(0)).toBe(1);
     expect(strikerUpgrade(1)).toBe(2);
     expect(strikerUpgrade(2)).toBe(2);
-    expect([0, 1, 2].map(strikerPlaneSize)).toEqual([64, 80, 96]);
+    expect([0, 1, 2].map(strikerPlaneSize)).toEqual([48, 78, 102]);
   });
   it("evolves weapons from single to twin to five-way fire", () => {
     expect([0, 1, 2].map((n) => strikerWeapon(n).offsets.length)).toEqual([1, 2, 5]);

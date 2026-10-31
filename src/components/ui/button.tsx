@@ -10,6 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         ice: "btn-ice",
+        icePlay: "game-play",
         iceEmerald: "btn-ice ice-emerald",
         iceRose: "btn-ice ice-rose",
         iceRoyal: "btn-ice ice-royal",

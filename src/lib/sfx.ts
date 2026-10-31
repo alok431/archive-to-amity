@@ -35,6 +35,18 @@ function buzz(ms: number | number[]) {
 }
 
 export const sfx = {
+  shoot(gun = 0) {
+    if (!enabled) return;
+    const c = ac(); if (!c) return;
+    const t = c.currentTime, o = c.createOscillator(), g = c.createGain();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(1400 + gun * 180, t);
+    o.frequency.exponentialRampToValueAtTime(260, t + 0.065);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.045, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.075);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t + 0.085);
+  },
   tap() { if (!enabled) return; tone(1800, 0, 0.06, "triangle", 0.06); buzz(8); },
   chime() { if (!enabled) return; [1318, 1760, 2637].forEach((f, i) => tone(f, i * 0.08, 0.35, "sine", 0.1)); buzz([12, 40, 18]); },
   crack() {

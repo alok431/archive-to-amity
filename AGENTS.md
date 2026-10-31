@@ -18,3 +18,4 @@
 - Keep spin outcomes in a pure shared configuration module, separate from the wheel dialog, so the pointer and credited demo reward use the same selection.
 - Community cards without configured destinations show an unavailable-link dialog; never invent official URLs.
 - Keep Blizzard Striker balancing, enemy volley ports/delays and plane progression in a pure shared configuration module used by gameplay and tests, so attack patterns, upgrades and difficulty stay consistent.
+- Use GamePlayButton backed by the UI Button icePlay variant for arcade launch, start and replay controls, so all game entry actions share one clean ice treatment.

@@ -35,7 +35,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
     const ctx = setupCanvas(canvas, W, H);
     const theme = getComputedStyle(canvas);
     const palette = { ice: theme.getPropertyValue("--ice").trim(), cyan: theme.getPropertyValue("--cyan").trim(), gold: theme.getPropertyValue("--gold").trim(), danger: theme.getPropertyValue("--destructive").trim() };
-    // Narrow, velocity-aligned ice needles with a tapered wake, not glowing blocks.
+    // Medium-width, velocity-aligned ice bolts with sharp tips and short wakes.
     const drawNeedle = (b: Bullet, width: number, length: number, color: string) => {
       ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(Math.atan2(b.vy, b.vx) + Math.PI / 2);
       const trail = ctx.createLinearGradient(0, -length / 2, 0, length * 1.6);
@@ -47,7 +47,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
     const flakes = makeFlakes(40, W, H);
     const stars = Array.from({ length: 70 }, () => ({ x: Math.random() * W, y: Math.random() * H, z: 0.3 + Math.random() }));
     let x = W / 2, y = H - 80, score = 0, kills = 0, gems = 0, lives = ARCADE_LIVES, time = STRIKER_SECONDS, t = 0;
-    let hurt = 0, fireT = 0, waveT = 1, wave = 0, rockT = 5, gun = 0, shield = 0, drone = 0, shake = 0, hudT = 0, upgradeT = 12;
+    let hurt = 0, fireT = 0, waveT = 1, wave = 0, rockT = 5, gun = 0, shield = 0, drone = 0, shake = 0, hudT = 0, upgradeT = 12, evolution = 0;
     let boss: { x: number; y: number; hp: number; t: number; a: number; b: number } | null = null, bossState: "wait" | "live" | "down" = "wait";
     target.current = { x, y };
     let foes: Enemy[] = [], shots: Bullet[] = [], hostile: Bullet[] = [], drops: Drop[] = [], bits: Bit[] = [], txts: Txt[] = [];
@@ -61,7 +61,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
       const speed = strikerDifficulty(t).bulletSpeed * volley.speedMultiplier;
       const angle = volley.aimed ? Math.atan2(y - e.y, x - e.x) : Math.PI / 2;
       if (hostile.length + volley.offsets.length <= STRIKER_MAX_HOSTILE) volley.offsets.forEach((offset, i) => hostile.push({ x: e.x + (volley.ports[i] ?? 0), y: e.y + e.s * 0.3, vx: Math.cos(angle + offset) * speed, vy: Math.sin(angle + offset) * speed, delay: volley.delays[i] ?? 0, kind: e.kind ?? "fighter" }));
-      e.fire = volley.cooldown + Math.random() * 0.8;
+      e.fire = (volley.cooldown + Math.random() * 0.8) / strikerDifficulty(t).fireRate;
     };
 
     // Formations that fly like a real shooter: V-wing, snake, side swoops, divers and a box grid.
@@ -92,9 +92,9 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
       burst(e.x, e.y, 12, e.rock ? "#cfefff" : "#ff7ad9");
       const r = Math.random();
       if (r < 0.12) drops.push({ x: e.x, y: e.y, kind: "gem" });
-      else if (r < 0.28) drops.push({ x: e.x, y: e.y, kind: "gun" });
-      else if (r < 0.38) drops.push({ x: e.x, y: e.y, kind: "shield" });
-      else if (r < 0.44) drops.push({ x: e.x, y: e.y, kind: "drone" });
+      else if (r < 0.20) drops.push({ x: e.x, y: e.y, kind: "gun" });
+      else if (r < 0.25) drops.push({ x: e.x, y: e.y, kind: "shield" });
+      else if (r < 0.29) drops.push({ x: e.x, y: e.y, kind: "drone" });
     };
 
     loadImages({ jet: jetSrc, twin: twinSrc, aurora: auroraSrc, rock: rockSrc, gem: cubeSrc, foe: enemySrc, interceptor: interceptorSrc, bomber: bomberSrc, boss: bossSrc }).then((img) => {
@@ -103,8 +103,9 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         if (paused.current) { last = now; raf = requestAnimationFrame(frame); return; }
         const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt; time -= dt;
         hurt = Math.max(0, hurt - dt); shield = Math.max(0, shield - dt); drone = Math.max(0, drone - dt); shake = Math.max(0, shake - dt);
+        evolution = Math.max(0, evolution - dt);
         upgradeT -= dt;
-        if (upgradeT <= 0) { drops.push({ x: Math.max(30, Math.min(W - 30, x)), y: y - 140, kind: gun < 2 ? "gun" : "shield" }); upgradeT = STRIKER_UPGRADE_EVERY; }
+        if (upgradeT <= 0) { if (gun < 2) drops.push({ x: Math.max(30, Math.min(W - 30, x)), y: y - 140, kind: "gun" }); upgradeT = STRIKER_UPGRADE_EVERY; }
         const tg = target.current; tg.x = Math.max(24, Math.min(W - 24, tg.x)); tg.y = Math.max(H * 0.45, Math.min(H - 40, tg.y));
         x += (tg.x - x) * Math.min(1, dt * 12); y += (tg.y - y) * Math.min(1, dt * 12);
 
@@ -112,6 +113,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         fireT -= dt;
         if (fireT <= 0) {
           const weapon = strikerWeapon(gun); fireT = weapon.cooldown;
+          sfx.shoot(gun);
           weapon.offsets.forEach((a, i) => shots.push({ x: x + (gun === 1 ? (i === 0 ? -15 : 15) : 0), y: y - strikerPlaneSize(gun) * 0.4, vx: Math.sin(a) * 660, vy: -Math.cos(a) * 660 }));
           if (drone > 0) for (const d of [-34, 34]) shots.push({ x: x + d, y: y - 6, vx: 0, vy: -600 });
         }
@@ -129,8 +131,8 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         if (rockT <= 0 && bossState !== "live" && !(bossState === "wait" && t > BOSS_AT - 8)) { const s = 34 + Math.random() * 26, sx = 30 + Math.random() * (W - 60), v = 90 + Math.random() * 55, vr = (Math.random() - 0.5) * 2; foes.push({ x: sx, y: -40, px: sx, py: -40, t: 0, hp: s > 50 ? 3 : 2, s, fire: 99, rock: true, rot: 0, step: (e, d) => { e.y += v * d; e.rot += vr * d; } }); rockT = 5 + Math.random() * 2; }
 
         for (const e of foes) {
-          e.px = e.x; e.py = e.y; e.t += dt; if (e.t < 0) continue;
-          e.step(e, dt);
+          e.px = e.x; e.py = e.y; const moveDt = e.rock ? dt : dt * strikerDifficulty(t).movementSpeed; e.t += moveDt; if (e.t < 0) continue;
+          e.step(e, moveDt);
           if (!e.rock && e.x > 12 && e.x < W - 12 && e.y > 20 && e.y < H * 0.6) { e.fire -= dt; if (e.fire <= 0) enemyFire(e); }
         }
         if (boss) {
@@ -138,8 +140,9 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
           boss.y += ((boss.t < 2.5 ? 100 : 100 + Math.sin(boss.t * 0.8) * 22) - boss.y) * Math.min(1, dt * 1.5);
           boss.x = W / 2 + Math.sin(boss.t * 0.7) * 90;
           boss.a -= dt; boss.b -= dt;
-          if (boss.a <= 0 && boss.t > 3) { if (hostile.length + 5 <= STRIKER_MAX_HOSTILE) for (const a of [-0.6, -0.3, 0, 0.3, 0.6]) hostile.push({ x: boss.x, y: boss.y + 20, vx: Math.sin(a) * 115, vy: Math.cos(a) * 115 }); boss.a = STRIKER_BOSS_FAN_SECONDS; }
-          if (boss.b <= 0 && boss.t > 3) { const a = Math.atan2(y - boss.y, x - boss.x); if (hostile.length + 3 <= STRIKER_MAX_HOSTILE) for (const sp of [-0.2, 0, 0.2]) hostile.push({ x: boss.x, y: boss.y + 30, vx: Math.cos(a + sp) * 140, vy: Math.sin(a + sp) * 140 }); boss.b = STRIKER_BOSS_VOLLEY_SECONDS; }
+          const pressure = strikerDifficulty(t);
+          if (boss.a <= 0 && boss.t > 3) { const speed = pressure.bulletSpeed * 0.75; if (hostile.length + 5 <= STRIKER_MAX_HOSTILE) for (const a of [-0.6, -0.3, 0, 0.3, 0.6]) hostile.push({ x: boss.x, y: boss.y + 20, vx: Math.sin(a) * speed, vy: Math.cos(a) * speed }); boss.a = STRIKER_BOSS_FAN_SECONDS / pressure.fireRate; }
+          if (boss.b <= 0 && boss.t > 3) { const a = Math.atan2(y - boss.y, x - boss.x), speed = pressure.bulletSpeed * 0.9; if (hostile.length + 3 <= STRIKER_MAX_HOSTILE) for (const sp of [-0.2, 0, 0.2]) hostile.push({ x: boss.x, y: boss.y + 30, vx: Math.cos(a + sp) * speed, vy: Math.sin(a + sp) * speed }); boss.b = STRIKER_BOSS_VOLLEY_SECONDS / pressure.fireRate; }
         }
 
         for (const s of shots) { s.x += s.vx * dt; s.y += s.vy * dt; }
@@ -159,8 +162,8 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         drops = drops.filter((d) => {
           if (Math.hypot(d.x - x, d.y - y) < 42) {
             if (d.kind === "gem") { gems++; txts.push({ x: d.x, y: d.y, l: 0.8, s: "+cube" }); }
-            if (d.kind === "gun") { const previous = gun; gun = strikerUpgrade(gun); if (gun === previous) drone = 12; txts.push({ x: d.x, y: d.y, l: 1.5, s: gun === previous ? "WING SUPPORT" : `${GUNS[gun]} EVOLUTION`.toUpperCase() }); burst(x, y, 20, "#7ff0ff"); }
-            if (d.kind === "shield") shield = 12;
+            if (d.kind === "gun") { const previous = gun; gun = strikerUpgrade(gun); if (gun === previous) drone = 8; else evolution = 0.9; txts.push({ x: d.x, y: d.y, l: 1.5, s: gun === previous ? "WING SUPPORT" : `${GUNS[gun]} EVOLUTION`.toUpperCase() }); burst(x, y, 20, "#7ff0ff"); }
+            if (d.kind === "shield") shield = 7;
             if (d.kind === "drone") drone = 9;
             sfx.chime(); return false;
           }
@@ -229,7 +232,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
           ctx.fillStyle = bar; ctx.beginPath(); ctx.roundRect(40, 12, (W - 80) * (boss.hp / BOSS_HP), 10, 5); ctx.fill();
           ctx.fillStyle = "#eafcff"; ctx.font = "bold 10px system-ui"; ctx.textAlign = "center"; ctx.fillText("FROST TITAN", W / 2, 36);
         }
-        for (const b of hostile) if ((b.delay ?? 0) <= 0) drawNeedle(b, 2.2, b.kind === "sniper" ? 13 : 9, b.kind === "bomber" || b.kind === "tank" ? palette.gold : palette.danger);
+        for (const b of hostile) if ((b.delay ?? 0) <= 0) drawNeedle(b, 2.8, b.kind === "sniper" ? 13 : 10, b.kind === "bomber" || b.kind === "tank" ? palette.gold : palette.danger);
         const shotWidth = strikerWeapon(gun).width;
         for (const s of shots) drawNeedle(s, shotWidth / 2, 12, gun === 2 ? palette.gold : gun === 1 ? palette.cyan : palette.ice);
         ctx.shadowBlur = 0;
@@ -240,6 +243,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
           ctx.fillStyle = "rgba(0,207,255,.55)"; ctx.beginPath(); ctx.ellipse(x - 8, y + 32 + Math.random() * 5, 4, 11, 0, 0, 7); ctx.ellipse(x + 8, y + 32 + Math.random() * 5, 4, 11, 0, 0, 7); ctx.fill();
           const size = strikerPlaneSize(gun), plane = gun === 2 ? img.aurora : gun === 1 ? img.twin : img.jet;
           ctx.shadowColor = gun === 2 ? "#fff1ac" : "#00cfff"; ctx.shadowBlur = 18; ctx.drawImage(plane, x - size / 2, y - size / 2, size, size); ctx.shadowBlur = 0;
+          if (evolution > 0) { ctx.save(); ctx.globalAlpha = evolution / 0.9; ctx.strokeStyle = palette.ice; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, size / 2 + (0.9 - evolution) * 50, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
           if (drone > 0) for (const d of [-34, 34]) { ctx.fillStyle = "#c9e8ff"; ctx.shadowColor = "#7ff0ff"; ctx.shadowBlur = 12; ctx.beginPath(); ctx.moveTo(x + d, y - 14); ctx.lineTo(x + d + 8, y + 6); ctx.lineTo(x + d - 8, y + 6); ctx.closePath(); ctx.fill(); ctx.shadowBlur = 0; }
         }
         if (shield > 0) { ctx.strokeStyle = `rgba(127,240,255,${0.45 + Math.sin(t * 10) * 0.25})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, strikerPlaneSize(gun) / 2 + 8, 0, 7); ctx.stroke(); }
