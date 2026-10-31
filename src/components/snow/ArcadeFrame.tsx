@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type MutableRefObject, type ReactNode } fr
 import { createPortal } from "react-dom";
 import { Maximize2, Minimize2, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { IceButton } from "./IceButton";
+import { GamePlayButton } from "./GamePlayButton";
 import { Coin } from "./Shell";
 import { celebrate, updateGame } from "@/lib/game-store";
 import { setSfxEnabled, sfx } from "@/lib/sfx";
@@ -71,7 +72,7 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
             {phase === "ready" && card(<>
               <p className="ice-title mt-1 text-2xl">{title}</p>
               <p className="mt-2 text-sm text-crystal">{hint}</p>
-              <IceButton wide className="mt-7 w-full" onClick={onStart}>PLAY</IceButton>
+              <GamePlayButton className="mt-5" onClick={() => { sfx.tap(); onStart(); }} />
             </>)}
             {phase === "playing" && paused && card(<>
               <p className="ice-title mt-1 text-2xl">PAUSED</p>
@@ -86,7 +87,7 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
               <p className="reward-ember mt-3 flex items-center justify-center gap-1.5 font-display text-3xl"><Coin className="h-7 w-7" />+{reward}</p>
               <div className="mt-7 flex gap-3">
                 <IceButton wide glyph="check" className="flex-1" disabled={claimed} onClick={(e) => claim(e.currentTarget)}>{claimed ? "CLAIMED" : "CLAIM"}</IceButton>
-                <IceButton wide className="flex-1" onClick={() => { if (!claimed) claim(document.body); onStart(); }}>AGAIN</IceButton>
+                <GamePlayButton className="flex-1" onClick={() => { if (!claimed) claim(document.body); onStart(); }}>AGAIN</GamePlayButton>
               </div>
             </>)}
           </div>

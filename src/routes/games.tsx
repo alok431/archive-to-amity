@@ -1,13 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense, useState } from "react";
-import { Play } from "lucide-react";
 import drift from "@/assets/game-drift.webp";
 import icicle from "@/assets/game-icicle.webp";
 import striker from "@/assets/game-striker.webp";
 import tower from "@/assets/game-tower.webp";
 import { Reward } from "@/components/snow/Shell";
 import { GlacierMiner } from "@/components/snow/GlacierMiner";
-import { IceButton } from "@/components/snow/IceButton";
+import { GamePlayButton } from "@/components/snow/GamePlayButton";
 import { ARCADE_REWARD_CAP, STRIKER_SECONDS } from "@/lib/arcade-config";
 
 const GlacierDrift = lazy(() => import("@/components/snow/GlacierDrift").then((m) => ({ default: m.GlacierDrift })));
@@ -56,7 +55,7 @@ function Games() {
             <div className="px-1 pb-1 pt-1 text-center">
               <p className="text-3d text-lg leading-tight">{g.n}</p>
               <p className="text-xs text-cyan">{g.d}</p>
-              <IceButton wide className="mt-2 w-full" onClick={() => setOpen(g.id)}><Play size={16} fill="currentColor" />PLAY</IceButton>
+              <GamePlayButton className="mt-2" onClick={() => setOpen(g.id)} />
             </div>
           </article>
         ))}

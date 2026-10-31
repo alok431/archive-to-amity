@@ -1,15 +1,15 @@
 /** Browser-safe balancing and permanent progression for Blizzard Striker. */
 export type StrikerEnemyKind = "fighter" | "tank" | "sniper" | "twin" | "interceptor" | "bomber";
 export const STRIKER_GUNS = ["Frost", "Twin", "Aurora"] as const;
-export const STRIKER_BOSS_HP = 90;
+export const STRIKER_BOSS_HP = 180;
 export const STRIKER_BOSS_VOLLEY_SECONDS = 2.8;
 export const STRIKER_BOSS_FAN_SECONDS = 4.5;
 export const STRIKER_MAX_HOSTILE = 28;
 export const STRIKER_UPGRADE_EVERY = 24;
 
 export function strikerDifficulty(elapsed: number) {
-  const tier = Math.min(3, Math.floor(Math.max(0, elapsed) / 45));
-  return { tier, hpBonus: Math.min(2, tier), waveSeconds: Math.max(4, 5.5 - tier * 0.5), bulletSpeed: 125 + tier * 15 };
+  const tier = Math.min(6, Math.floor(Math.max(0, elapsed) / 30));
+  return { tier, hpBonus: Math.min(4, tier), waveSeconds: Math.max(2.8, 5.5 - tier * 0.45), bulletSpeed: 125 + tier * 18, fireRate: 1 + tier * 0.12, movementSpeed: 1 + tier * 0.06 };
 }
 
 export function strikerEnemyVolley(kind: StrikerEnemyKind) {
@@ -27,11 +27,11 @@ export function strikerUpgrade(current: number): number {
 
 /** Visual growth never increases the collision radius. */
 export function strikerPlaneSize(gun: number): number {
-  return [64, 80, 96][Math.min(2, Math.max(0, gun))] ?? 64;
+  return [48, 78, 102][Math.min(2, Math.max(0, gun))] ?? 48;
 }
 
 export function strikerWeapon(gun: number) {
-  if (gun >= 2) return { offsets: [-0.22, -0.11, 0, 0.11, 0.22], cooldown: 0.16, width: 2.4 };
-  if (gun === 1) return { offsets: [0, 0], cooldown: 0.18, width: 2.2 };
-  return { offsets: [0], cooldown: 0.2, width: 2 };
+  if (gun >= 2) return { offsets: [-0.22, -0.11, 0, 0.11, 0.22], cooldown: 0.19, width: 4.4 };
+  if (gun === 1) return { offsets: [0, 0], cooldown: 0.2, width: 4.2 };
+  return { offsets: [0], cooldown: 0.22, width: 4 };
 }
