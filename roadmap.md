@@ -15,6 +15,7 @@
 - [x] Replace Events categories and competitions with referral presentation.
 - [x] Match all IQ reward colors to Logout and verify flows.
 # Ice polish round 2
+- [x] Sharpen Striker projectiles, add distinct enemy ships and firing styles, and verify gameplay.
 - [x] Ease Blizzard Striker late waves and boss, add multi-shot enemies and evolving plane/weapon pickups, extend runs to 200 seconds, and verify gameplay.
 - [x] Replace header snowflake with three-shard crystal prism mark.
 - [x] Blend header into the balance card (deeper fade, tighter overlap).

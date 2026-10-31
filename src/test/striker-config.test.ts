@@ -12,6 +12,20 @@ describe("Blizzard Striker balancing", () => {
     expect(strikerEnemyVolley("twin").offsets).toHaveLength(2);
     expect(strikerEnemyVolley("tank").offsets).toHaveLength(3);
   });
+  it("gives snipers a three-shot timed burst rather than a simultaneous fan", () => {
+    expect(strikerEnemyVolley("sniper").delays).toEqual([0, 0.18, 0.36]);
+    expect(strikerEnemyVolley("sniper").offsets).toEqual([0, 0, 0]);
+  });
+  it("fires twin cannons from separate ports", () => {
+    expect(strikerEnemyVolley("twin").ports).toEqual([-13, 13]);
+    expect(strikerEnemyVolley("twin").offsets).toEqual([0, 0]);
+  });
+  it("gives bombers slow five-way fire and interceptors staggered two-shot fire", () => {
+    expect(strikerEnemyVolley("bomber").offsets).toEqual([-0.6, -0.3, 0, 0.3, 0.6]);
+    expect(strikerEnemyVolley("bomber").speedMultiplier).toBe(0.65);
+    expect(strikerEnemyVolley("interceptor").delays).toEqual([0, 0.12]);
+    expect(strikerEnemyVolley("interceptor").aimed).toBe(false);
+  });
   it("collecting upgrades enlarges the plane through two permanent evolutions", () => {
     expect(strikerUpgrade(0)).toBe(1);
     expect(strikerUpgrade(1)).toBe(2);
