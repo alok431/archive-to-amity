@@ -9,12 +9,14 @@ import { STRIKER_GUNS as GUNS, STRIKER_BOSS_HP as BOSS_HP, STRIKER_BOSS_VOLLEY_S
 import rockSrc from "@/assets/sp-boulder.webp";
 import cubeSrc from "@/assets/ice-cube.webp";
 import enemySrc from "@/assets/sp-enemy.webp";
+import interceptorSrc from "@/assets/sp-interceptor.webp";
+import bomberSrc from "@/assets/sp-bomber.webp";
 import bossSrc from "@/assets/sp-boss.webp";
 
 const W = 360, H = 600, BOSS_AT = STRIKER_BOSS_AT;
 
 type Enemy = { kind?: StrikerEnemyKind; x: number; y: number; px: number; py: number; t: number; hp: number; s: number; fire: number; rock?: boolean; rot: number; step: (e: Enemy, dt: number) => void; leave?: boolean };
-type Bullet = { x: number; y: number; vx: number; vy: number };
+type Bullet = { x: number; y: number; vx: number; vy: number; delay?: number; kind?: StrikerEnemyKind };
 type Drop = { x: number; y: number; kind: "gem" | "gun" | "shield" | "drone" };
 type Bit = { x: number; y: number; vx: number; vy: number; l: number; c: string };
 type Txt = { x: number; y: number; l: number; s: string };
@@ -31,6 +33,17 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
     const canvas = cv.current;
     if (!canvas) return;
     const ctx = setupCanvas(canvas, W, H);
+    const theme = getComputedStyle(canvas);
+    const palette = { ice: theme.getPropertyValue("--ice").trim(), cyan: theme.getPropertyValue("--cyan").trim(), gold: theme.getPropertyValue("--gold").trim(), danger: theme.getPropertyValue("--destructive").trim() };
+    // Narrow, velocity-aligned ice needles with a tapered wake, not glowing blocks.
+    const drawNeedle = (b: Bullet, width: number, length: number, color: string) => {
+      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(Math.atan2(b.vy, b.vx) + Math.PI / 2);
+      const trail = ctx.createLinearGradient(0, -length / 2, 0, length * 1.6);
+      trail.addColorStop(0, color); trail.addColorStop(1, "transparent");
+      ctx.fillStyle = trail; ctx.beginPath(); ctx.moveTo(0, -length / 2); ctx.lineTo(width, length / 2); ctx.lineTo(0, length * 1.6); ctx.lineTo(-width, length / 2); ctx.closePath(); ctx.fill();
+      ctx.shadowColor = color; ctx.shadowBlur = 3; ctx.fillStyle = palette.ice;
+      ctx.beginPath(); ctx.moveTo(0, -length / 2); ctx.lineTo(width / 2, length / 4); ctx.lineTo(0, length / 2); ctx.lineTo(-width / 2, length / 4); ctx.closePath(); ctx.fill(); ctx.restore();
+    };
     const flakes = makeFlakes(40, W, H);
     const stars = Array.from({ length: 70 }, () => ({ x: Math.random() * W, y: Math.random() * H, z: 0.3 + Math.random() }));
     let x = W / 2, y = H - 80, score = 0, kills = 0, gems = 0, lives = ARCADE_LIVES, time = STRIKER_SECONDS, t = 0;
@@ -46,8 +59,8 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
     const enemyFire = (e: Enemy) => {
       const volley = strikerEnemyVolley(e.kind ?? "fighter");
       const speed = strikerDifficulty(t).bulletSpeed * volley.speedMultiplier;
-      const angle = Math.atan2(y - e.y, x - e.x);
-      if (hostile.length + volley.offsets.length <= STRIKER_MAX_HOSTILE) for (const offset of volley.offsets) hostile.push({ x: e.x, y: e.y + 12, vx: Math.cos(angle + offset) * speed, vy: Math.sin(angle + offset) * speed });
+      const angle = volley.aimed ? Math.atan2(y - e.y, x - e.x) : Math.PI / 2;
+      if (hostile.length + volley.offsets.length <= STRIKER_MAX_HOSTILE) volley.offsets.forEach((offset, i) => hostile.push({ x: e.x + (volley.ports[i] ?? 0), y: e.y + e.s * 0.3, vx: Math.cos(angle + offset) * speed, vy: Math.sin(angle + offset) * speed, delay: volley.delays[i] ?? 0, kind: e.kind }));
       e.fire = volley.cooldown + Math.random() * 0.8;
     };
 
@@ -63,6 +76,10 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
       // Snipers: slide in from both sides and fire fast aimed shots
       () => { for (const side of [0, 1]) add((e) => { const hx = side ? W - 40 : 40; e.x = side ? W + 40 - Math.min(80, e.t * 90) : -40 + Math.min(80, e.t * 90); e.y = 160 + Math.sin(e.t * 1.6) * 70; if (e.t > 7) e.x += (side ? 1 : -1) * (e.t - 7) * 160; void hx; }, side ? W + 40 : -40, 160, side * 0.4, 2, 38, "sniper"); },
       () => { for (let i = 0; i < 2; i++) { const sx = 95 + i * 170; add((e) => { e.x = sx + Math.sin(e.t * 1.2) * 36; e.y = e.t < 2 ? -40 + e.t * 75 : e.t < 8 ? 110 : 110 + (e.t - 8) * 100; }, sx, -40, i * 0.7, 2, 48, "twin"); } },
+      // Fast curved interceptors cross in staggered pairs; shots travel downward.
+      () => { const side = wave % 2 ? 1 : -1; for (let i = 0; i < 3; i++) add((e) => { e.y = -45 + e.t * 100; e.x = W / 2 + side * Math.sin(e.t * 1.5 + i * 0.5) * 125; }, W / 2, -45, i * 0.65, 1, 44, "interceptor"); },
+      // One broad bomber hovers, releases slow fans, then drifts offscreen.
+      () => { add((e) => { e.x = W / 2 + Math.sin(e.t * 0.65) * 95; e.y = e.t < 2 ? -60 + e.t * 80 : e.t < 8 ? 100 : 100 + (e.t - 8) * 105; }, W / 2, -60, 0, 4, 76, "bomber"); },
     ];
     const burst = (bx: number, by: number, n: number, c: string, sp = 260) => { for (let i = 0; i < n; i++) bits.push({ x: bx, y: by, vx: (Math.random() - 0.5) * sp, vy: (Math.random() - 0.5) * sp, l: 0.5 + Math.random() * 0.4, c }); };
     const hitPlayer = () => {
@@ -80,7 +97,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
       else if (r < 0.44) drops.push({ x: e.x, y: e.y, kind: "drone" });
     };
 
-    loadImages({ jet: jetSrc, twin: twinSrc, aurora: auroraSrc, rock: rockSrc, gem: cubeSrc, foe: enemySrc, boss: bossSrc }).then((img) => {
+    loadImages({ jet: jetSrc, twin: twinSrc, aurora: auroraSrc, rock: rockSrc, gem: cubeSrc, foe: enemySrc, interceptor: interceptorSrc, bomber: bomberSrc, boss: bossSrc }).then((img) => {
       const frame = (now: number) => {
         if (!alive) return;
         if (paused.current) { last = now; raf = requestAnimationFrame(frame); return; }
@@ -114,7 +131,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         for (const e of foes) {
           e.px = e.x; e.py = e.y; e.t += dt; if (e.t < 0) continue;
           e.step(e, dt);
-          if (!e.rock && e.y > 20 && e.y < H * 0.6) { e.fire -= dt; if (e.fire <= 0) enemyFire(e); }
+          if (!e.rock && e.x > 12 && e.x < W - 12 && e.y > 20 && e.y < H * 0.6) { e.fire -= dt; if (e.fire <= 0) enemyFire(e); }
         }
         if (boss) {
           boss.t += dt;
@@ -126,7 +143,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         }
 
         for (const s of shots) { s.x += s.vx * dt; s.y += s.vy * dt; }
-        for (const b of hostile) { b.x += b.vx * dt; b.y += b.vy * dt; }
+        for (const b of hostile) { if ((b.delay ?? 0) > 0) { b.delay = Math.max(0, (b.delay ?? 0) - dt); continue; } b.x += b.vx * dt; b.y += b.vy * dt; }
         for (const d of drops) d.y += 120 * dt;
 
         for (const s of shots) {
@@ -138,7 +155,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
           }
         }
         for (const e of foes) if (e.t >= 0 && e.hp > 0 && Math.hypot(e.x - x, e.y - y) < e.s / 2 + 16) { e.hp = 0; burst(e.x, e.y, 10, "#ff7ad9"); hitPlayer(); }
-        hostile = hostile.filter((b) => { if (Math.hypot(b.x - x, b.y - y) < 14) { hitPlayer(); return false; } return b.y < H + 10 && b.y > -20 && b.x > -20 && b.x < W + 20; });
+        hostile = hostile.filter((b) => { if ((b.delay ?? 0) > 0) return true; if (Math.hypot(b.x - x, b.y - y) < 14) { hitPlayer(); return false; } return b.y < H + 10 && b.y > -20 && b.x > -20 && b.x < W + 20; });
         drops = drops.filter((d) => {
           if (Math.hypot(d.x - x, d.y - y) < 42) {
             if (d.kind === "gem") { gems++; txts.push({ x: d.x, y: d.y, l: 0.8, s: "+cube" }); }
@@ -185,7 +202,24 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
           if (e.t < 0) continue;
           ctx.save(); ctx.translate(e.x, e.y);
           if (e.rock) { ctx.rotate(e.rot); ctx.drawImage(img.rock, -e.s / 2, -e.s / 2, e.s, e.s); }
-          else { const vx = e.x - e.px, vy = e.y - e.py; if (Math.abs(vx) + Math.abs(vy) > 0.2) e.rot += (-Math.atan2(vx, Math.max(0.5, vy)) * 0.8 - e.rot) * 0.2; ctx.rotate(e.rot); ctx.shadowColor = e.kind === "tank" ? "#ffb35a" : e.kind === "twin" ? "#7ff0ff" : e.kind === "sniper" ? "#a8ff6a" : "#ff5ccf"; ctx.shadowBlur = e.kind === "tank" ? 26 : 12; if (e.kind === "sniper") ctx.filter = "hue-rotate(110deg)"; if (e.kind === "twin") ctx.filter = "hue-rotate(190deg)"; if (e.kind === "tank") ctx.filter = "hue-rotate(-60deg) saturate(1.4)"; ctx.drawImage(img.foe, -e.s / 2, -e.s / 2, e.s, e.s); ctx.filter = "none"; if (e.kind === "twin") { ctx.fillStyle = "#7ff0ff"; for (const dx of [-16, 16]) { ctx.beginPath(); ctx.roundRect(dx - 3, 8, 6, 18, 3); ctx.fill(); } } }
+          else {
+            const vx = e.x - e.px, vy = e.y - e.py;
+            if (Math.abs(vx) + Math.abs(vy) > 0.2) e.rot += (Math.max(-0.5, Math.min(0.5, -Math.atan2(vx, Math.max(0.5, vy)) * 0.5)) - e.rot) * 0.2;
+            ctx.rotate(e.rot);
+            const heavy = e.kind === "tank" || e.kind === "bomber";
+            const color = heavy ? palette.gold : e.kind === "sniper" ? palette.danger : palette.cyan;
+            ctx.shadowColor = color; ctx.shadowBlur = 8;
+            const sprite = heavy ? img.bomber : e.kind === "interceptor" || e.kind === "sniper" ? img.interceptor : img.foe;
+            if (e.kind === "sniper") ctx.scale(0.72, 1.12);
+            ctx.drawImage(sprite, -e.s / 2, -e.s / 2, e.s, e.s);
+            ctx.shadowBlur = 0;
+            if (e.fire < 0.55 && e.y > 20 && e.y < H * 0.6) {
+              ctx.globalAlpha = 0.45 + Math.sin(t * 28) * 0.25;
+              ctx.strokeStyle = color; ctx.lineWidth = 1;
+              ctx.beginPath(); ctx.arc(0, e.s * 0.3, 4 + (0.55 - e.fire) * 7, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
+            }
+            if (e.kind === "twin") { ctx.fillStyle = palette.ice; for (const dx of [-13, 13]) ctx.fillRect(dx - 1.5, e.s * 0.15, 3, 10); }
+          }
           ctx.restore();
         }
         if (boss) {
@@ -195,11 +229,9 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
           ctx.fillStyle = bar; ctx.beginPath(); ctx.roundRect(40, 12, (W - 80) * (boss.hp / BOSS_HP), 10, 5); ctx.fill();
           ctx.fillStyle = "#eafcff"; ctx.font = "bold 10px system-ui"; ctx.textAlign = "center"; ctx.fillText("FROST TITAN", W / 2, 36);
         }
-        for (const b of hostile) { ctx.fillStyle = "#ff6fd1"; ctx.shadowColor = "#ff3fbf"; ctx.shadowBlur = 10; ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, 7); ctx.fill(); }
-        ctx.shadowColor = "#7ff0ff"; ctx.shadowBlur = 12; ctx.fillStyle = "#eafcff";
+        for (const b of hostile) if ((b.delay ?? 0) <= 0) drawNeedle(b, 2.2, b.kind === "sniper" ? 13 : 9, b.kind === "bomber" || b.kind === "tank" ? palette.gold : palette.danger);
         const shotWidth = strikerWeapon(gun).width;
-        ctx.fillStyle = gun === 2 ? "#fff1ac" : gun === 1 ? "#7ff0ff" : "#eafcff";
-        for (const s of shots) { ctx.beginPath(); ctx.roundRect(s.x - shotWidth / 2, s.y - 11, shotWidth, gun === 2 ? 24 : 18, 3); ctx.fill(); }
+        for (const s of shots) drawNeedle(s, shotWidth / 2, 12, gun === 2 ? palette.gold : gun === 1 ? palette.cyan : palette.ice);
         ctx.shadowBlur = 0;
         for (const b of bits) { b.x += b.vx * dt; b.y += b.vy * dt; b.l -= dt; ctx.globalAlpha = Math.max(0, b.l * 1.6); ctx.fillStyle = b.c; ctx.fillRect(b.x, b.y, 4, 4); }
         ctx.globalAlpha = 1; bits = bits.filter((b) => b.l > 0);
