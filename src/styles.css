@@ -509,9 +509,6 @@ main { text-shadow: 0 1px 2px var(--background); }
   @apply btn-ice ice-royal;
   height: 54px; border-radius: 14px; font-size: 20px; letter-spacing: 2px;
 }
-.game-play::before { content: ""; position: absolute; left: -2px; right: -2px; top: -9px; height: 16px; pointer-events: none; border-radius: 10px 10px 6px 6px; z-index: 1;
-  background: radial-gradient(circle at 16% 72%, oklch(1 0 0) 6px, transparent 6.5px), radial-gradient(circle at 38% 50%, oklch(1 0 0) 8px, transparent 8.5px), radial-gradient(circle at 62% 68%, oklch(1 0 0) 7px, transparent 7.5px), radial-gradient(circle at 84% 52%, oklch(1 0 0) 6px, transparent 6.5px), linear-gradient(oklch(0.99 0.01 220), oklch(0.92 0.03 225));
-  box-shadow: 0 2px 0 oklch(0.8 0.05 230); }
 .game-play svg { width: 20px; height: 20px; filter: var(--frozen-icon); }
 @media (prefers-reduced-motion: reduce) { .game-play { transition: none; } }
 
