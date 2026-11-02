@@ -4,8 +4,8 @@ import { Maximize2, Minimize2, Pause, Play, Volume2, VolumeX } from "lucide-reac
 import { IceButton } from "./IceButton";
 import { GamePlayButton } from "./GamePlayButton";
 import { Coin } from "./Shell";
-import { celebrate, updateGame } from "@/lib/game-store";
-import { setSfxEnabled, sfx } from "@/lib/sfx";
+import { celebrate, updateGame, useGame } from "@/lib/game-store";
+import { sfx } from "@/lib/sfx";
 import prism from "@/assets/prism-logo.webp";
 
 export type Phase = "ready" | "playing" | "over";
@@ -23,17 +23,17 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
   const [claimed, setClaimed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [sound, setSound] = useState(true);
+  const { sound } = useGame();
   const [full, setFull] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
   useEffect(() => {
     setMounted(true); const o = document.body.style.overflow; document.body.style.overflow = "hidden";
     const fs = () => setFull(!!document.fullscreenElement); document.addEventListener("fullscreenchange", fs);
-    return () => { document.body.style.overflow = o; document.removeEventListener("fullscreenchange", fs); setSfxEnabled(true); if (document.fullscreenElement) void document.exitFullscreen?.(); };
+    return () => { document.body.style.overflow = o; document.removeEventListener("fullscreenchange", fs); if (document.fullscreenElement) void document.exitFullscreen?.(); };
   }, []);
   useEffect(() => { if (phase === "playing") setClaimed(false); setPaused(false); pausedRef.current = false; }, [phase, pausedRef]);
   const togglePause = () => { if (phase !== "playing") return; const v = !paused; setPaused(v); pausedRef.current = v; sfx.tap(); };
-  const toggleSound = () => { const v = !sound; setSound(v); setSfxEnabled(v); };
+  const toggleSound = () => updateGame((s) => ({ ...s, sound: !s.sound }));
   const toggleFull = () => { if (document.fullscreenElement) void document.exitFullscreen?.(); else void stage.current?.requestFullscreen?.().catch(() => {}); };
   const claim = (el: Element) => {
     if (claimed) return;

@@ -101,7 +101,7 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
       const frame = (now: number) => {
         if (!alive) return;
         if (paused.current) { last = now; raf = requestAnimationFrame(frame); return; }
-        const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt; time -= dt;
+        const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now; t += dt; time -= dt;
         hurt = Math.max(0, hurt - dt); shield = Math.max(0, shield - dt); drone = Math.max(0, drone - dt); shake = Math.max(0, shake - dt);
         evolution = Math.max(0, evolution - dt);
         upgradeT -= dt;
