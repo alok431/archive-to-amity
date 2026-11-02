@@ -15,7 +15,7 @@
 - [x] Replace Events categories and competitions with referral presentation.
 - [x] Match all IQ reward colors to Logout and verify flows.
 # Ice polish round 2
-- [ ] Adjust Striker to medium bullets, audible shots, stronger timed difficulty and visible plane evolution; refresh all game Play buttons and verify.
+- [x] Adjust Striker to medium bullets, audible shots, stronger timed difficulty and visible plane evolution; refresh all game Play buttons and verify.
 - [x] Sharpen Striker projectiles, add distinct enemy ships and firing styles, and verify gameplay.
 - [x] Ease Blizzard Striker late waves and boss, add multi-shot enemies and evolving plane/weapon pickups, extend runs to 200 seconds, and verify gameplay.
 - [x] Replace header snowflake with three-shard crystal prism mark.
