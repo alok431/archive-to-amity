@@ -47,7 +47,7 @@ function Games() {
         {games.map((g, i) => (
           <article key={g.id} className={`ice-panel snow-cap overflow-hidden p-1.5 ${i === 0 || i === 3 ? "col-span-2" : ""}`}>
             <div className={`relative overflow-hidden rounded-md ${i === 0 || i === 3 ? "aspect-[16/8]" : "aspect-[4/3.4]"}`}>
-              <img src={g.img} alt={g.n} width={480} height={400} className="h-full w-full object-cover transition duration-500 hover:scale-110" />
+              <img src={g.img} alt={g.n} loading="lazy" decoding="async" width={480} height={400} className="h-full w-full object-cover transition duration-500 hover:scale-110" />
               <div className="ice-badge absolute right-1 top-1 rounded-lg px-1.5 py-0.5 text-xs"><Reward v={`≤${ARCADE_REWARD_CAP}`} /></div>
               <div className="ice-badge absolute left-1 top-1 rounded-lg px-1.5 py-0.5 text-[10px] text-ice">{g.len}</div>
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent" />
