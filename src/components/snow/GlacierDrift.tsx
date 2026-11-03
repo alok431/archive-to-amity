@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArcadeFrame, Hearts, drawFlakes, loadImages, makeFlakes, setupCanvas, type Phase } from "./ArcadeFrame";
+import { ArcadeFrame, Hearts, drawFlakes, loadImages, makeFlakes, setupCanvas, createFrameScheduler, type Phase } from "./ArcadeFrame";
 import { IceButton } from "./IceButton";
 import { ARCADE_LIVES, DRIFT_SECONDS, arcadeReward } from "@/lib/arcade-config";
 import { sfx } from "@/lib/sfx";
@@ -22,15 +22,20 @@ export function GlacierDrift({ onExit }: { onExit: () => void }) {
   useEffect(() => {
     if (phase !== "playing") return;
     g.current = { lane: 1, x: laneX(1), things: [], spawn: 0.6, speed: 260, dist: 0, gems: 0, lives: ARCADE_LIVES, time: DRIFT_SECONDS, hurt: 0, scroll: 0, shield: 0, shake: 0 };
-    const ctx = setupCanvas(cv.current!, W, H);
+    const canvas = cv.current;
+    if (!canvas) return;
+    const ctx = setupCanvas(canvas, W, H);
     const flakes = makeFlakes(45, W, H);
-    let raf = 0, last = performance.now(), alive = true, hudT = 0;
+    let last = performance.now(), alive = true, hudT = 0;
+    const frames = createFrameScheduler(paused, () => { last = performance.now(); });
     const key = (e: KeyboardEvent) => { if (e.key === "ArrowLeft" || e.key === "a") move(-1); if (e.key === "ArrowRight" || e.key === "d") move(1); };
     window.addEventListener("keydown", key);
     loadImages({ sled: sledSrc, rock: boulderSrc, gem: cubeSrc }).then((img) => {
+      if (!alive) return;
+      last = performance.now();
       const frame = (now: number) => {
         if (!alive) return;
-        if (paused.current) { last = now; raf = requestAnimationFrame(frame); return; }
+        if (paused.current) { last = now; frames.request(frame); return; }
         const dt = Math.min(0.05, (now - last) / 1000); last = now;
         const s = g.current;
         s.shield = Math.max(0, s.shield - dt); s.shake = Math.max(0, s.shake - dt);
@@ -108,11 +113,11 @@ export function GlacierDrift({ onExit }: { onExit: () => void }) {
         hudT -= dt;
         if (hudT <= 0) { hudT = 0.1; setHud({ dist: Math.floor(s.dist), gems: s.gems, lives: s.lives, time: Math.max(0, s.time) }); }
         if (s.lives <= 0 || s.time <= 0) { setHud({ dist: Math.floor(s.dist), gems: s.gems, lives: Math.max(0, s.lives), time: Math.max(0, s.time) }); setPhase("over"); return; }
-        raf = requestAnimationFrame(frame);
+        frames.request(frame);
       };
-      raf = requestAnimationFrame(frame);
+      frames.request(frame);
     });
-    return () => { alive = false; cancelAnimationFrame(raf); window.removeEventListener("keydown", key); };
+    return () => { alive = false; frames.dispose(); window.removeEventListener("keydown", key); };
   }, [phase]);
 
   const touch = useRef(0);

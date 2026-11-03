@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArcadeFrame, Hearts, drawFlakes, loadImages, makeFlakes, setupCanvas, type Phase } from "./ArcadeFrame";
+import { ArcadeFrame, Hearts, drawFlakes, loadImages, makeFlakes, setupCanvas, createFrameScheduler, type Phase } from "./ArcadeFrame";
 import { ARCADE_LIVES, STRIKER_BOSS_AT, STRIKER_SECONDS, arcadeReward } from "@/lib/arcade-config";
 import { sfx } from "@/lib/sfx";
 import jetSrc from "@/assets/sp-jet.webp";
@@ -51,7 +51,8 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
     let boss: { x: number; y: number; hp: number; t: number; a: number; b: number } | null = null, bossState: "wait" | "live" | "down" = "wait";
     target.current = { x, y };
     let foes: Enemy[] = [], shots: Bullet[] = [], hostile: Bullet[] = [], drops: Drop[] = [], bits: Bit[] = [], txts: Txt[] = [];
-    let raf = 0, last = performance.now(), alive = true;
+    let last = performance.now(), alive = true;
+    const frames = createFrameScheduler(paused, () => { last = performance.now(); });
     const key = (e: KeyboardEvent) => { const k = e.key; if (k === "ArrowLeft") target.current.x -= 40; if (k === "ArrowRight") target.current.x += 40; if (k === "ArrowUp") target.current.y -= 40; if (k === "ArrowDown") target.current.y += 40; };
     window.addEventListener("keydown", key);
 
@@ -98,9 +99,11 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
     };
 
     loadImages({ jet: jetSrc, twin: twinSrc, aurora: auroraSrc, rock: rockSrc, gem: cubeSrc, foe: enemySrc, interceptor: interceptorSrc, bomber: bomberSrc, boss: bossSrc }).then((img) => {
+      if (!alive) return;
+      last = performance.now();
       const frame = (now: number) => {
         if (!alive) return;
-        if (paused.current) { last = now; raf = requestAnimationFrame(frame); return; }
+        if (paused.current) { last = now; frames.request(frame); return; }
         const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now; t += dt; time -= dt;
         hurt = Math.max(0, hurt - dt); shield = Math.max(0, shield - dt); drone = Math.max(0, drone - dt); shake = Math.max(0, shake - dt);
         evolution = Math.max(0, evolution - dt);
@@ -259,11 +262,11 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
         const done = lives <= 0 || time <= 0;
         if (hudT <= 0 || done) { hudT = 0.1; setHud({ score, kills, gems, lives: Math.max(0, lives), gun, boss: bossV, time: Math.max(0, time) }); }
         if (done) { setPhase("over"); return; }
-        raf = requestAnimationFrame(frame);
+        frames.request(frame);
       };
-      raf = requestAnimationFrame(frame);
+      frames.request(frame);
     });
-    return () => { alive = false; cancelAnimationFrame(raf); window.removeEventListener("keydown", key); };
+    return () => { alive = false; frames.dispose(); window.removeEventListener("keydown", key); };
   }, [phase]);
 
   // Relative drag: the jet follows your finger's movement, not jumping under it.

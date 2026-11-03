@@ -118,7 +118,7 @@ function Home() {
 
       {/* Event */}
       <section className="ice-panel snow-cap relative overflow-hidden">
-        <img src={village} alt="Snow village" className="absolute inset-0 h-full w-full object-cover object-right" />
+        <img src={village} alt="Snow village" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover object-right" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
         <div className="relative p-4">
           <p className="font-display text-gold">SPECIAL EVENT</p>
@@ -135,7 +135,7 @@ function MiniCard({ img, title, sub, cta, to, spin }: { img: string; title: stri
   return (
     <div className="ice-panel snow-cap p-3">
       <div className="flex items-center gap-2">
-        <img src={img} alt="" className={`h-12 w-12 shrink-0 object-contain ${spin ? "animate-[spin_7s_linear_infinite] drop-shadow-[0_0_8px_var(--cyan)]" : ""}`} />
+        <img src={img} alt="" loading="lazy" decoding="async" width={48} height={48} className={`h-12 w-12 shrink-0 object-contain ${spin ? "animate-[spin_7s_linear_infinite] drop-shadow-[0_0_8px_var(--cyan)]" : ""}`} />
         <div className="min-w-0">
           <p className="text-3d truncate">{title}</p>
           <p className="truncate text-xs text-ice/75">{sub}</p>

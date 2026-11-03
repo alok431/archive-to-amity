@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArcadeFrame, Hearts, drawFlakes, makeFlakes, setupCanvas, type Phase } from "./ArcadeFrame";
+import { ArcadeFrame, Hearts, drawFlakes, makeFlakes, setupCanvas, createFrameScheduler, type Phase } from "./ArcadeFrame";
 import bgSrc from "@/assets/tower-bg.webp";
 import { ARCADE_LIVES, TOWER_RINGS, arcadeReward } from "@/lib/arcade-config";
 import { sfx } from "@/lib/sfx";
@@ -54,7 +54,9 @@ export function FrostTower({ onExit }: { onExit: () => void }) {
 
   useEffect(() => {
     if (phase !== "playing") return;
-    const ctx = setupCanvas(cv.current!, W, H);
+    const canvas = cv.current;
+    if (!canvas) return;
+    const ctx = setupCanvas(canvas, W, H);
     const flakes = makeFlakes(40, W, H);
     const bgImg = new Image(); bgImg.src = bgSrc;
     let level = 1, broken = 0, cleared = 0, lives = ARCADE_LIVES, left = TOWER_RINGS, rot = 0, t = 0, bounce = 0, smashT = 0, streak = 0, fever = 0, hurt = 0, scroll = 0, flash = 0;
@@ -62,7 +64,8 @@ export function FrostTower({ onExit }: { onExit: () => void }) {
     let pieces: Piece[] = [];
     const sync = () => setHud({ level, rings: broken, cleared, lives: Math.max(0, lives), left, fever: fever > 0 });
     sync();
-    let raf = 0, last = performance.now(), alive = true;
+    let last = performance.now(), alive = true;
+    const frames = createFrameScheduler(paused, () => { last = performance.now(); });
     const kd = (e: KeyboardEvent) => { if (e.code === "Space") { e.preventDefault(); hold.current = true; } };
     const ku = (e: KeyboardEvent) => { if (e.code === "Space") hold.current = false; };
     window.addEventListener("keydown", kd); window.addEventListener("keyup", ku);
@@ -70,13 +73,13 @@ export function FrostTower({ onExit }: { onExit: () => void }) {
     const shatter = (ring: Ring, cy: number) => {
       for (let k = 0; k < SEG; k++) {
         const a = (k + 0.5) * (TAU / SEG) + ring.off + rot;
-        pieces.push({ x: CX + Math.cos(a) * RX * 0.8, y: cy + Math.sin(a) * RY, vx: Math.cos(a) * (220 + Math.random() * 160), vy: -120 - Math.random() * 200, r: 0, vr: (Math.random() - 0.5) * 10, l: 1, dark: ring.dark[k]! });
+        pieces.push({ x: CX + Math.cos(a) * RX * 0.8, y: cy + Math.sin(a) * RY, vx: Math.cos(a) * (220 + Math.random() * 160), vy: -120 - Math.random() * 200, r: 0, vr: (Math.random() - 0.5) * 10, l: 1, dark: ring.dark[k] ?? false });
       }
     };
 
     const frame = (now: number) => {
       if (!alive) return;
-      if (paused.current) { last = now; raf = requestAnimationFrame(frame); return; }
+      if (paused.current) { last = now; frames.request(frame); return; }
       const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
       rot += (1.3 + level * 0.12) * dt;
       fever = Math.max(0, fever - dt); hurt = Math.max(0, hurt - dt); flash = Math.max(0, flash - dt);
@@ -86,7 +89,8 @@ export function FrostTower({ onExit }: { onExit: () => void }) {
         smashT -= dt;
         if (smashT <= 0) {
           smashT = 0.075;
-          const top = rings[0]!;
+          const top = rings[0];
+          if (!top) return;
           const front = Math.floor(norm(Math.PI / 2 - rot - top.off) / (TAU / SEG));
           if (top.dark[front] && fever <= 0) {
             lives--; hurt = 1; streak = 0; flash = 0.3; sfx.crack(); hold.current = false;
@@ -116,14 +120,16 @@ export function FrostTower({ onExit }: { onExit: () => void }) {
       // rings (bottom first so upper rings overlap)
       const visible = Math.min(rings.length, 16);
       for (let i = visible - 1; i >= 0; i--) {
-        const r = rings[i]!, cy = BALL_Y + 22 + i * GAP + scroll;
+        const r = rings[i];
+        if (!r) continue;
+        const cy = BALL_Y + 22 + i * GAP + scroll;
         if (cy > H + 40) continue;
         const shade = 1 - Math.min(1, i / 14);
         // back half, then front half
         for (const pass of [0, 1]) for (let k = 0; k < SEG; k++) {
           const a0 = k * (TAU / SEG) + r.off + rot, mid = a0 + TAU / SEG / 2;
           if ((Math.sin(mid) > 0 ? 1 : 0) !== pass) continue;
-          band(ctx, cy, a0 + 0.03, a0 + TAU / SEG - 0.03, r.dark[k]!, shade * (pass ? 1 : 0.6), pass === 1);
+          band(ctx, cy, a0 + 0.03, a0 + TAU / SEG - 0.03, r.dark[k] ?? false, shade * (pass ? 1 : 0.6), pass === 1);
         }
       }
       // shattered pieces
@@ -154,10 +160,10 @@ export function FrostTower({ onExit }: { onExit: () => void }) {
       drawFlakes(ctx, flakes, dt, W, H, 20);
 
       if (lives <= 0) { sync(); setPhase("over"); return; }
-      raf = requestAnimationFrame(frame);
+      frames.request(frame);
     };
-    raf = requestAnimationFrame(frame);
-    return () => { alive = false; cancelAnimationFrame(raf); window.removeEventListener("keydown", kd); window.removeEventListener("keyup", ku); };
+    frames.request(frame);
+    return () => { alive = false; frames.dispose(); window.removeEventListener("keydown", kd); window.removeEventListener("keyup", ku); };
   }, [phase]);
 
   const reward = arcadeReward("tower", { score: hud.rings, gems: hud.cleared });

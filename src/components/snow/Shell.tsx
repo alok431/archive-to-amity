@@ -6,6 +6,7 @@ import { loadGame, updateGame, useGame } from "@/lib/game-store";
 import { sfx } from "@/lib/sfx";
 import { RewardFloats } from "./RewardFloats";
 import { Button } from "@/components/ui/button";
+import { useDecorationVisibility } from "@/hooks/use-decoration-visibility";
 import icHome from "@/assets/ic-home.webp";
 import icTasks from "@/assets/ic-tasks.webp";
 import icEvents from "@/assets/ic-events.webp";
@@ -18,39 +19,16 @@ import iceCube from "@/assets/ice-cube.webp";
 
 export const IMG = { avatar, crystal };
 
-const artwork = Object.values(import.meta.glob("/src/assets/*.webp", { eager: true, query: "?url", import: "default" })) as string[];
-// Keep decoded images referenced for the whole session so the browser never evicts them.
-const warmed: HTMLImageElement[] = [];
-function warmArtwork() {
-  if (warmed.length || typeof window === "undefined") return;
-  for (const src of artwork) {
-    const image = new Image();
-    image.decoding = "async";
-    image.src = src;
-    void image.decode?.().catch(() => {});
-    warmed.push(image);
-  }
-}
-if (typeof window !== "undefined") warmArtwork();
-function ArtworkWarmup() {
-  useEffect(() => { warmArtwork(); }, []);
-  return (
-    <div aria-hidden className="pointer-events-none fixed -left-[9999px] top-0 h-px w-px overflow-hidden opacity-0">
-      {artwork.map((src) => <img key={src} src={src} alt="" width={1} height={1} />)}
-    </div>
-  );
-}
-
 function Snowfall() {
   const [flakes, setFlakes] = useState<{ l: number; d: number; s: number; delay: number; o: number }[]>([]);
   useEffect(() => {
-    setFlakes(Array.from({ length: 40 }, () => ({
+    setFlakes(Array.from({ length: 24 }, () => ({
       l: Math.random() * 100, d: 7 + Math.random() * 10, s: 2 + Math.random() * 4,
       delay: -Math.random() * 15, o: 0.4 + Math.random() * 0.6,
     })));
   }, []);
   return (
-    <div className="pointer-events-none fixed inset-0 z-40 overflow-hidden" aria-hidden>
+    <div className="shell-snowfall pointer-events-none fixed inset-0 z-40 overflow-hidden" aria-hidden>
       {flakes.map((f, i) => (
         <span key={i} className="absolute top-0 rounded-full bg-ice"
           style={{ left: `${f.l}%`, width: f.s, height: f.s, opacity: f.o,
@@ -139,15 +117,15 @@ function BottomNav() {
 }
 
 export function Shell({ children }: { children: ReactNode }) {
+  useDecorationVisibility();
   useEffect(() => { loadGame(); }, []);
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="snowquest-shell relative min-h-screen overflow-x-hidden">
       <div className="pointer-events-none fixed inset-0 z-0">
         <img src={bg} alt="" className="h-full w-full object-cover opacity-50" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background/95" />
       </div>
       <Snowfall />
-      <ArtworkWarmup />
       <RewardFloats />
       <div className="relative z-10 mx-auto max-w-[480px] pb-36">
         <Header />

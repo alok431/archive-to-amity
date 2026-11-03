@@ -14,7 +14,7 @@ export function GlacierMiner() {
 
   useEffect(() => {
     const t = setInterval(() => updateGame((s) => regenEnergy(s, Date.now())), 1000);
-    return () => clearInterval(t);
+    return () => { clearInterval(t); clearTimeout(comboTimer.current); };
   }, []);
 
   const tap = (el: Element) => {
