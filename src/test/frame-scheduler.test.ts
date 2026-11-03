@@ -20,7 +20,9 @@ it("sleeps on pause and resumes one retained frame without advancing paused time
   document.dispatchEvent(new Event("arcade-pause-change"));
   expect(resume).toHaveBeenCalledTimes(1);
   expect(request).toHaveBeenCalledTimes(2);
-  request.mock.calls[1][0](100);
+  const callback = request.mock.calls[1]?.[0];
+  expect(callback).toBeTypeOf("function");
+  callback?.(100);
   expect(draw).toHaveBeenCalledWith(100);
   frames.dispose();
 });
