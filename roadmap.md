@@ -1,5 +1,5 @@
 # Ice-theme polish
-- [ ] Smooth loading, off-screen effects, game loops and sound cleanup while preserving the interface; verify all games and navigation.
+- [x] Smooth loading, off-screen effects, game loops and sound cleanup while preserving the interface; verify all games and navigation.
 - [x] Overhaul all shared surfaces with snowy, faceted 3D artwork from the supplied reference.
 - [x] Restore icy type, small details, and a narrower dimensional navigation bar.
 - [x] Verify all five screens and Watch interactions after the overhaul.

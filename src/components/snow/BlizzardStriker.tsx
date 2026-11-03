@@ -35,13 +35,11 @@ export function BlizzardStriker({ onExit }: { onExit: () => void }) {
     const ctx = setupCanvas(canvas, W, H);
     const theme = getComputedStyle(canvas);
     const palette = { ice: theme.getPropertyValue("--ice").trim(), cyan: theme.getPropertyValue("--cyan").trim(), gold: theme.getPropertyValue("--gold").trim(), danger: theme.getPropertyValue("--destructive").trim() };
-    const boltGradients = new Map<string, CanvasGradient>();
     // Medium-width, velocity-aligned ice bolts with sharp tips and short wakes.
     const drawNeedle = (b: Bullet, width: number, length: number, color: string) => {
       ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(Math.atan2(b.vy, b.vx) + Math.PI / 2);
-      const key = `${length}:${color}`;
-      let trail = boltGradients.get(key);
-      if (!trail) { trail = ctx.createLinearGradient(0, -length / 2, 0, length * 1.6); trail.addColorStop(0, color); trail.addColorStop(1, "transparent"); boltGradients.set(key, trail); }
+      const trail = ctx.createLinearGradient(0, -length / 2, 0, length * 1.6);
+      trail.addColorStop(0, color); trail.addColorStop(1, "transparent");
       ctx.fillStyle = trail; ctx.beginPath(); ctx.moveTo(0, -length / 2); ctx.lineTo(width, length / 2); ctx.lineTo(0, length * 1.6); ctx.lineTo(-width, length / 2); ctx.closePath(); ctx.fill();
       ctx.shadowColor = color; ctx.shadowBlur = 3; ctx.fillStyle = palette.ice;
       ctx.beginPath(); ctx.moveTo(0, -length / 2); ctx.lineTo(width / 2, length / 4); ctx.lineTo(0, length / 2); ctx.lineTo(-width / 2, length / 4); ctx.closePath(); ctx.fill(); ctx.restore();
