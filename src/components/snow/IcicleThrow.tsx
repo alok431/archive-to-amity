@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArcadeFrame, drawFlakes, loadImages, makeFlakes, setupCanvas, type Phase } from "./ArcadeFrame";
+import { ArcadeFrame, drawFlakes, loadImages, makeFlakes, setupCanvas, createFrameScheduler, type Phase } from "./ArcadeFrame";
 import { arcadeReward, icicleStageTarget } from "@/lib/arcade-config";
 import { sfx } from "@/lib/sfx";
 import targetSrc from "@/assets/sp-target.webp";
@@ -28,7 +28,9 @@ export function IcicleThrow({ onExit }: { onExit: () => void }) {
 
   useEffect(() => {
     if (phase !== "playing") return;
-    const ctx = setupCanvas(cv.current!, W, H);
+    const canvas = cv.current;
+    if (!canvas) return;
+    const ctx = setupCanvas(canvas, W, H);
     const flakes = makeFlakes(35, W, H);
     let stage = 1, cleared = 0, gems = 0, left = icicleStageTarget(1);
     let rot = 0, spin = 1.8, stuck: number[] = [], gemAngles: number[] = [], flying: number | null = null, flash = 0, dead = false, deadT = 0, shards: { x: number; y: number; vx: number; vy: number; l: number }[] = [];
@@ -41,13 +43,16 @@ export function IcicleThrow({ onExit }: { onExit: () => void }) {
     newStage();
     const sync = () => setHud({ stage, cleared, gems, left });
     sync();
-    let raf = 0, last = performance.now(), alive = true, t = 0;
+    let last = performance.now(), alive = true, t = 0;
+    const frames = createFrameScheduler(paused, () => { last = performance.now(); });
     const key = (e: KeyboardEvent) => { if (e.code === "Space") { e.preventDefault(); g.current.throwReq = true; } };
     window.addEventListener("keydown", key);
     loadImages({ target: targetSrc, gem: cubeSrc }).then((img) => {
+      if (!alive) return;
+      last = performance.now();
       const frame = (now: number) => {
         if (!alive) return;
-        if (paused.current) { last = now; raf = requestAnimationFrame(frame); return; }
+        if (paused.current) { last = now; frames.request(frame); return; }
         const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
         const boss = stage % 4 === 0;
         const wobble = boss ? Math.sin(t * 1.1) * 3.4 : stage > 2 ? Math.sin(t * 1.3) * 0.9 : 0;
@@ -91,11 +96,11 @@ export function IcicleThrow({ onExit }: { onExit: () => void }) {
         for (const s of shards) { s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 600 * dt; s.l -= dt; ctx.fillStyle = `rgba(220,248,255,${Math.max(0, s.l)})`; ctx.fillRect(s.x, s.y, 6, 10); }
         drawFlakes(ctx, flakes, dt, W, H);
         if (dead) { deadT += dt; if (deadT > 0.9) { setPhase("over"); return; } }
-        raf = requestAnimationFrame(frame);
+        frames.request(frame);
       };
-      raf = requestAnimationFrame(frame);
+      frames.request(frame);
     });
-    return () => { alive = false; cancelAnimationFrame(raf); window.removeEventListener("keydown", key); };
+    return () => { alive = false; frames.dispose(); window.removeEventListener("keydown", key); };
   }, [phase]);
 
   const reward = arcadeReward("icicle", { score: hud.cleared, gems: hud.gems });
