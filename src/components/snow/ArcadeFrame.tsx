@@ -5,7 +5,8 @@ import { IceButton } from "./IceButton";
 import { GamePlayButton } from "./GamePlayButton";
 import { Coin } from "./Shell";
 import { celebrate, updateGame, useGame } from "@/lib/game-store";
-import { sfx } from "@/lib/sfx";
+import { sfx, stopActiveSounds } from "@/lib/sfx";
+import { createFrameScheduler } from "@/lib/frame-scheduler";
 import prism from "@/assets/prism-logo.webp";
 
 export type Phase = "ready" | "playing" | "over";
@@ -28,11 +29,16 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
   const stage = useRef<HTMLDivElement>(null);
   useEffect(() => {
     setMounted(true); const o = document.body.style.overflow; document.body.style.overflow = "hidden";
+    document.body.setAttribute("data-arcade-open", "");
+    const visibility = () => {
+      if (document.hidden) { pausedRef.current = true; setPaused(true); document.dispatchEvent(new Event("arcade-pause-change")); }
+    };
+    document.addEventListener("visibilitychange", visibility);
     const fs = () => setFull(!!document.fullscreenElement); document.addEventListener("fullscreenchange", fs);
-    return () => { document.body.style.overflow = o; document.removeEventListener("fullscreenchange", fs); if (document.fullscreenElement) void document.exitFullscreen?.(); };
-  }, []);
-  useEffect(() => { if (phase === "playing") setClaimed(false); setPaused(false); pausedRef.current = false; }, [phase, pausedRef]);
-  const togglePause = () => { if (phase !== "playing") return; const v = !paused; setPaused(v); pausedRef.current = v; sfx.tap(); };
+    return () => { document.body.style.overflow = o; document.body.removeAttribute("data-arcade-open"); document.removeEventListener("visibilitychange", visibility); document.removeEventListener("fullscreenchange", fs); clearImageCache(); stopActiveSounds(); if (document.fullscreenElement) void document.exitFullscreen?.().catch(() => {}); };
+  }, [pausedRef]);
+  useEffect(() => { if (phase === "playing") setClaimed(false); setPaused(false); pausedRef.current = false; document.dispatchEvent(new Event("arcade-pause-change")); }, [phase, pausedRef]);
+  const togglePause = () => { if (phase !== "playing") return; const v = !paused; setPaused(v); pausedRef.current = v; document.dispatchEvent(new Event("arcade-pause-change")); sfx.tap(); };
   const toggleSound = () => updateGame((s) => ({ ...s, sound: !s.sound }));
   const toggleFull = () => { if (document.fullscreenElement) void document.exitFullscreen?.(); else void stage.current?.requestFullscreen?.().catch(() => {}); };
   const claim = (el: Element) => {
@@ -106,16 +112,31 @@ export function Hearts({ n, max = 3 }: { n: number; max?: number }) {
 
 /** Canvas helpers shared by the arcade games. */
 export function loadImages<T extends Record<string, string>>(srcs: T): Promise<Record<keyof T, HTMLImageElement>> {
-  const entries = Object.entries(srcs).map(([k, src]) => new Promise<[string, HTMLImageElement]>((res) => {
-    const im = new Image(); im.onload = () => res([k, im]); im.onerror = () => res([k, im]); im.src = src;
-  }));
+  const entries = Object.entries(srcs).map(async ([k, src]): Promise<[string, HTMLImageElement]> => {
+    let image = imageCache.get(src);
+    if (!image) {
+      image = new Promise<HTMLImageElement>((resolve) => {
+        const im = new Image(); im.decoding = "async";
+        im.onload = () => { im.onload = null; im.onerror = null; void im.decode().catch(() => {}).then(() => resolve(im)); };
+        im.onerror = () => { im.onload = null; im.onerror = null; resolve(im); };
+        im.src = src;
+      });
+      imageCache.set(src, image);
+    }
+    return [k, await image];
+  });
   return Promise.all(entries).then((e) => Object.fromEntries(e) as Record<keyof T, HTMLImageElement>);
 }
+
+const imageCache = new Map<string, Promise<HTMLImageElement>>();
+function clearImageCache() { imageCache.clear(); }
+export { createFrameScheduler };
 
 export function setupCanvas(c: HTMLCanvasElement, w: number, h: number) {
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   c.width = w * dpr; c.height = h * dpr;
-  const ctx = c.getContext("2d")!;
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("Canvas is unavailable");
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return ctx;
 }
