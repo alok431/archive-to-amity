@@ -332,6 +332,14 @@
 @utility animate-floaty { animation: floaty 3s ease-in-out infinite; }
 @utility animate-page { animation: page-in 0.35s ease-out; }
 
+/* Keep the same materials and motion, but do not animate invisible surfaces. */
+[data-motion-paused], [data-motion-paused]::before, [data-motion-paused]::after,
+body[data-page-hidden] *, body[data-page-hidden] *::before, body[data-page-hidden] *::after,
+body[data-arcade-open] .snowquest-shell *, body[data-arcade-open] .snowquest-shell *::before, body[data-arcade-open] .snowquest-shell *::after {
+  animation-play-state: paused !important;
+}
+body[data-arcade-open] .shell-snowfall { visibility: hidden; }
+
 /* Nine-slice painted ice: preserve the snow, cracks and icicles at every size. */
 .ice-panel::before, .stone::before, .ice-tile::before, .btn-ice::before, .chip::before {
   content: "";
