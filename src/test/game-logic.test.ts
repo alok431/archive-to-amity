@@ -35,3 +35,15 @@ describe("game rules", () => {
     expect(mine(a.state, 1, 0).reward).toBe(0);
   });
 });
+
+import { recordBest } from "@/lib/game-logic";
+describe("recordBest", () => {
+  it("keeps the higher run and flags a new best", () => {
+    const a = recordBest(initialState(), "Glacier Drift", 120);
+    expect(a.state.best["Glacier Drift"]).toBe(120);
+    const b = recordBest(a.state, "Glacier Drift", 90);
+    expect(b.isNew).toBe(false);
+    expect(b.state.best["Glacier Drift"]).toBe(120);
+    expect(recordBest(b.state, "Glacier Drift", 150).isNew).toBe(true);
+  });
+});

@@ -520,7 +520,7 @@ main { text-shadow: 0 1px 2px var(--background); }
 .game-play svg { width: 20px; height: 20px; filter: var(--frozen-icon); }
 @media (prefers-reduced-motion: reduce) { .game-play { transition: none; } }
 
-.arcade-stage { background: radial-gradient(ellipse at top, oklch(0.32 0.12 245), var(--background) 70%); padding-bottom: env(safe-area-inset-bottom); }
+.arcade-stage { touch-action: none; overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; background: radial-gradient(ellipse at top, oklch(0.32 0.12 245), var(--background) 70%); padding-bottom: env(safe-area-inset-bottom); }
 .arcade-canvas { display: block; width: 100%; max-height: calc(100dvh - 230px); margin-inline: auto; object-fit: contain; border-radius: 16px; border: 3px solid oklch(0.92 0.06 210); box-shadow: 0 6px 0 var(--ice-depth-dark), 0 0 28px color-mix(in oklab, var(--cyan) 45%, transparent), inset 0 0 20px var(--cyan); touch-action: none; user-select: none; }
 
 /* Arcade full-screen layout */

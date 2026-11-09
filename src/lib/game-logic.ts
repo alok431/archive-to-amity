@@ -18,6 +18,7 @@ export interface GameState {
   sound: boolean;
   energy: number;
   energyAt: number;
+  best: Record<string, number>; // best run reward per game
 }
 
 export const initialState = (): GameState => ({
@@ -29,6 +30,7 @@ export const initialState = (): GameState => ({
   sound: true,
   energy: MINER_MAX_ENERGY,
   energyAt: 0,
+  best: {},
 });
 
 export const dayKey = (d: Date) => d.toISOString().slice(0, 10);
@@ -91,4 +93,11 @@ export function mine(s: GameState, combo: number, now: number): { state: GameSta
   const reward = 1 + ((combo + 1) % 10 === 0 ? 5 : 0);
   const energyAt = r.energy >= MINER_MAX_ENERGY ? now : r.energyAt;
   return { state: { ...r, energy: r.energy - 1, energyAt, balance: r.balance + reward }, reward };
+}
+
+/** Records a finished run; returns whether it beat the previous best. */
+export function recordBest(s: GameState, game: string, value: number): { state: GameState; isNew: boolean } {
+  const prev = s.best?.[game] ?? 0;
+  if (value <= prev) return { state: s, isNew: false };
+  return { state: { ...s, best: { ...s.best, [game]: value } }, isNew: prev > 0 || value > 0 };
 }

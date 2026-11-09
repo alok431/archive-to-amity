@@ -6,6 +6,7 @@ import { GamePlayButton } from "./GamePlayButton";
 import { Coin } from "./Shell";
 import { celebrate, updateGame, useGame } from "@/lib/game-store";
 import { sfx, stopActiveSounds } from "@/lib/sfx";
+import { recordBest } from "@/lib/game-logic";
 import { createFrameScheduler } from "@/lib/frame-scheduler";
 import prism from "@/assets/prism-logo.webp";
 
@@ -24,7 +25,9 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
   const [claimed, setClaimed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [paused, setPaused] = useState(false);
-  const { sound } = useGame();
+  const { sound, best } = useGame();
+  const [newBest, setNewBest] = useState(false);
+  const bestValue = best?.[title] ?? 0;
   const [full, setFull] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -37,7 +40,13 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
     const fs = () => setFull(!!document.fullscreenElement); document.addEventListener("fullscreenchange", fs);
     return () => { document.body.style.overflow = o; document.body.removeAttribute("data-arcade-open"); document.removeEventListener("visibilitychange", visibility); document.removeEventListener("fullscreenchange", fs); clearImageCache(); stopActiveSounds(); if (document.fullscreenElement) void document.exitFullscreen?.().catch(() => {}); };
   }, [pausedRef]);
-  useEffect(() => { if (phase === "playing") setClaimed(false); setPaused(false); pausedRef.current = false; document.dispatchEvent(new Event("arcade-pause-change")); }, [phase, pausedRef]);
+  useEffect(() => {
+    if (phase !== "over") return;
+    let isNew = false;
+    updateGame((s) => { const r = recordBest(s, title, reward); isNew = r.isNew; return r.state; });
+    setNewBest(isNew);
+  }, [phase, title, reward]);
+  useEffect(() => { if (phase === "playing") { setClaimed(false); setNewBest(false); } setPaused(false); pausedRef.current = false; document.dispatchEvent(new Event("arcade-pause-change")); }, [phase, pausedRef]);
   const togglePause = () => { if (phase !== "playing") return; const v = !paused; setPaused(v); pausedRef.current = v; document.dispatchEvent(new Event("arcade-pause-change")); sfx.tap(); };
   const toggleSound = () => updateGame((s) => ({ ...s, sound: !s.sound }));
   const toggleFull = () => { if (document.fullscreenElement) void document.exitFullscreen?.(); else void stage.current?.requestFullscreen?.().catch(() => {}); };
@@ -78,6 +87,7 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
             {phase === "ready" && card(<>
               <p className="ice-title mt-1 text-2xl">{title}</p>
               <p className="mt-2 text-sm text-crystal">{hint}</p>
+              {bestValue > 0 && <p className="mt-2 flex items-center justify-center gap-1 text-xs font-bold tracking-[0.12em] text-crystal">BEST RUN <Coin className="h-3.5 w-3.5" /><span className="text-gold">{bestValue}</span></p>}
               <GamePlayButton className="mt-5" onClick={() => { sfx.tap(); onStart(); }} />
             </>)}
             {phase === "playing" && paused && card(<>
@@ -88,9 +98,10 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
               </div>
             </>)}
             {phase === "over" && card(<>
-              <p className="ice-title mt-1 text-2xl">RUN COMPLETE</p>
+              <p className="ice-title mt-1 text-2xl">{newBest ? "NEW BEST!" : "RUN COMPLETE"}</p>
               <p className="mt-1 text-sm text-crystal">{summary}</p>
               <p className="reward-ember mt-3 flex items-center justify-center gap-1.5 font-display text-3xl"><Coin className="h-7 w-7" />+{reward}</p>
+              {!newBest && bestValue > 0 && <p className="mt-1 text-xs text-crystal">Best run: <span className="text-gold">{bestValue}</span></p>}
               <div className="mt-7 flex gap-3">
                 <IceButton wide glyph="check" className="flex-1" disabled={claimed} onClick={(e) => claim(e.currentTarget)}>{claimed ? "CLAIMED" : "CLAIM"}</IceButton>
                 <GamePlayButton className="flex-1" onClick={() => { if (!claimed) claim(document.body); onStart(); }}>AGAIN</GamePlayButton>
