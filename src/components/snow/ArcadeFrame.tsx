@@ -25,7 +25,8 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
   const [claimed, setClaimed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [paused, setPaused] = useState(false);
-  const { sound, best } = useGame();
+  const { sound, best, seenHints } = useGame();
+  const [guide, setGuide] = useState(false);
   const [newBest, setNewBest] = useState(false);
   const bestValue = best?.[title] ?? 0;
   const [full, setFull] = useState(false);
@@ -46,6 +47,14 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
     updateGame((s) => { const r = recordBest(s, title, reward); isNew = r.isNew; return r.state; });
     setNewBest(isNew);
   }, [phase, title, reward]);
+  useEffect(() => {
+    if (phase !== "playing" || seenHints?.[title]) return;
+    setGuide(true);
+    updateGame((s) => ({ ...s, seenHints: { ...s.seenHints, [title]: true } }));
+    const t = setTimeout(() => setGuide(false), 2800);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, title]);
   useEffect(() => { if (phase === "playing") { setClaimed(false); setNewBest(false); } setPaused(false); pausedRef.current = false; document.dispatchEvent(new Event("arcade-pause-change")); }, [phase, pausedRef]);
   const togglePause = () => { if (phase !== "playing") return; const v = !paused; setPaused(v); pausedRef.current = v; document.dispatchEvent(new Event("arcade-pause-change")); sfx.tap(); };
   const toggleSound = () => updateGame((s) => ({ ...s, sound: !s.sound }));
@@ -53,7 +62,7 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
   const claim = (el: Element) => {
     if (claimed) return;
     setClaimed(true);
-    if (reward > 0) { updateGame((s) => ({ ...s, balance: s.balance + reward })); celebrate(reward, el); sfx.chime(); }
+    if (reward > 0) { updateGame((s) => ({ ...s, balance: s.balance + reward })); celebrate(reward, el, `${title} run`); sfx.chime(); }
   };
   if (!mounted) return null;
   const card = (body: ReactNode) => (
@@ -90,6 +99,12 @@ export function ArcadeFrame({ title, hint, phase, stats, pausedRef, reward, summ
               {bestValue > 0 && <p className="mt-2 flex items-center justify-center gap-1 text-xs font-bold tracking-[0.12em] text-crystal">BEST RUN <Coin className="h-3.5 w-3.5" /><span className="text-gold">{bestValue}</span></p>}
               <GamePlayButton className="mt-5" onClick={() => { sfx.tap(); onStart(); }} />
             </>)}
+            {phase === "playing" && guide && !paused && (
+              <div className="pointer-events-none absolute inset-x-0 bottom-[18%] z-10 flex flex-col items-center gap-2" role="status">
+                <span className="game-guide-hand text-4xl" aria-hidden>👆</span>
+                <p className="ice-panel px-4 py-2 text-center text-sm font-bold text-ice">{hint}</p>
+              </div>
+            )}
             {phase === "playing" && paused && card(<>
               <p className="ice-title mt-1 text-2xl">PAUSED</p>
               <div className="mt-7 flex gap-3">

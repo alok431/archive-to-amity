@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { initialState, type GameState } from "./game-logic";
+import { addHistory, initialState, type GameState } from "./game-logic";
 import { setSfxEnabled } from "./sfx";
 
 const KEY = "snowquest-game-v1";
@@ -42,8 +42,9 @@ export function useGame() {
 }
 
 /** Show a floating "+N" at a point (e.g. the tapped button). */
-export function celebrate(amount: number, el?: Element | null) {
+export function celebrate(amount: number, el?: Element | null, label = "Reward claimed") {
   if (amount <= 0 || typeof window === "undefined") return;
+  if (label !== "__skip") updateGame((s) => addHistory(s, { label, amount }));
   const r = el?.getBoundingClientRect();
   const f = { id: ++fid, amount, x: r ? r.left + r.width / 2 : window.innerWidth / 2, y: r ? r.top : window.innerHeight / 2 };
   floats = [...floats, f];

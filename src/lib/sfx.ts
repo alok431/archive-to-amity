@@ -75,3 +75,25 @@ export const sfx = {
   },
   mine() { if (!enabled) return; tone(900 + Math.random() * 600, 0, 0.08, "square", 0.04); buzz(6); },
 };
+
+/** Soft looping wind for menus; separate from one-shot effects. */
+let wind: { src: AudioBufferSourceNode; gain: GainNode } | null = null;
+export function startWind() {
+  if (wind || !enabled) return;
+  const c = ac(); if (!c) return;
+  const len = c.sampleRate * 4, buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
+  const src = c.createBufferSource(), f = c.createBiquadFilter(), gain = c.createGain();
+  src.buffer = buf; src.loop = true; f.type = "lowpass"; f.frequency.value = 520;
+  gain.gain.setValueAtTime(0.0001, c.currentTime); gain.gain.exponentialRampToValueAtTime(0.05, c.currentTime + 1.5);
+  src.connect(f).connect(gain).connect(c.destination); src.start();
+  wind = { src, gain };
+}
+export function stopWind() {
+  if (!wind || !ctx) { wind = null; return; }
+  const w = wind; wind = null;
+  w.gain.gain.cancelScheduledValues(ctx.currentTime);
+  w.gain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.2);
+  setTimeout(() => { try { w.src.stop(); } catch { /* ended */ } w.src.disconnect(); w.gain.disconnect(); }, 700);
+}

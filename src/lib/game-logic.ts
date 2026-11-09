@@ -19,7 +19,16 @@ export interface GameState {
   energy: number;
   energyAt: number;
   best: Record<string, number>; // best run reward per game
+  promos: string[]; // redeemed promo codes
+  history: HistoryEntry[]; // newest first
+  seenHints: Record<string, boolean>; // first-time game guides already shown
+  ambient: boolean; // soft wind on menus
 }
+
+export interface HistoryEntry { id: number; label: string; amount: number; at: number; pending?: boolean }
+export const HISTORY_LIMIT = 30;
+/** Demo promo codes until codes come from the backend. */
+export const PROMO_CODES: Record<string, number> = { SNOW100: 100, FROST250: 250, ICE500: 500 };
 
 export const initialState = (): GameState => ({
   balance: 5680,
@@ -31,6 +40,10 @@ export const initialState = (): GameState => ({
   energy: MINER_MAX_ENERGY,
   energyAt: 0,
   best: {},
+  promos: [],
+  history: [],
+  seenHints: {},
+  ambient: true,
 });
 
 export const dayKey = (d: Date) => d.toISOString().slice(0, 10);
@@ -100,4 +113,19 @@ export function recordBest(s: GameState, game: string, value: number): { state: 
   const prev = s.best?.[game] ?? 0;
   if (value <= prev) return { state: s, isNew: false };
   return { state: { ...s, best: { ...s.best, [game]: value } }, isNew: prev > 0 || value > 0 };
+}
+
+export function addHistory(s: GameState, e: Omit<HistoryEntry, "id" | "at">, at = Date.now()): GameState {
+  const entry = { ...e, id: at + Math.random(), at };
+  return { ...s, history: [entry, ...(s.history ?? [])].slice(0, HISTORY_LIMIT) };
+}
+
+export type PromoResult = { state: GameState; reward: number; error?: string };
+export function redeemPromo(s: GameState, raw: string): PromoResult {
+  const code = raw.trim().toUpperCase();
+  const reward = PROMO_CODES[code];
+  if (!reward) return { state: s, reward: 0, error: "That code isn't valid." };
+  if ((s.promos ?? []).includes(code)) return { state: s, reward: 0, error: "You already used this code." };
+  const next = { ...s, balance: s.balance + reward, promos: [...(s.promos ?? []), code] };
+  return { state: addHistory(next, { label: `Promo code ${code}`, amount: reward }), reward };
 }

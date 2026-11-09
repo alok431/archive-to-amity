@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Settings, Globe, Volume2, VolumeX } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { loadGame, updateGame, useGame } from "@/lib/game-store";
-import { sfx } from "@/lib/sfx";
+import { sfx, startWind, stopWind } from "@/lib/sfx";
 import { RewardFloats } from "./RewardFloats";
 import { Button } from "@/components/ui/button";
 import { useDecorationVisibility } from "@/hooks/use-decoration-visibility";
@@ -64,9 +64,16 @@ function SoundToggle() {
   );
 }
 
+export function SettingsBody({ sound, ambient }: { sound: boolean; ambient: boolean }) {
+  return <div className="grid gap-2">
+    <Button variant="ice" aria-pressed={sound} onClick={() => updateGame((s) => ({ ...s, sound: !s.sound }))}>{sound ? <Volume2 /> : <VolumeX />}{sound ? "Sound On" : "Sound Off"}</Button>
+    <Button variant="ice" aria-pressed={ambient} disabled={!sound} onClick={() => updateGame((s) => ({ ...s, ambient: !s.ambient }))}>{ambient && sound ? <Volume2 /> : <VolumeX />}{ambient ? "Wind Sound On" : "Wind Sound Off"}</Button>
+  </div>;
+}
+
 export function Header() {
   const [panel, setPanel] = useState<"settings" | "language" | null>(null);
-  const { sound } = useGame();
+  const { sound, ambient } = useGame();
   return (
     <header className="quest-header ice-panel relative mx-3 mt-3 flex items-center justify-between gap-2 px-3 py-3">
       <div className="relative flex min-w-0 items-center gap-2"><img src={prismLogo} alt="SnowQuest crystal prism" width={56} height={56} className="header-prism h-14 w-14 shrink-0 object-contain" /><div><p className="ice-title text-2xl leading-none">SNOWQUEST</p><p className="mt-1 text-[10px] text-crystal">PLAY · EXPLORE · EARN</p></div></div>
@@ -75,7 +82,7 @@ export function Header() {
         <IconBtn label="Settings" onClick={() => setPanel("settings")}><Settings size={18} className="text-crystal" /></IconBtn>
         <IconBtn label="Language" onClick={() => setPanel("language")}><Globe size={18} className="text-crystal" /></IconBtn>
       </div>
-      <Dialog open={panel !== null} onOpenChange={(v) => { if (!v) setPanel(null); }}><DialogContent className="ice-panel w-[calc(100%-32px)] max-w-sm"><DialogTitle className="text-3d">{panel === "settings" ? "Settings" : "Language"}</DialogTitle><DialogDescription className="text-crystal">{panel === "settings" ? "Sound effects" : "English"}</DialogDescription>{panel === "settings" ? <Button variant="ice" aria-pressed={sound} onClick={() => updateGame((s) => ({ ...s, sound: !s.sound }))}>{sound ? <Volume2 /> : <VolumeX />}{sound ? "Sound On" : "Sound Off"}</Button> : <p className="text-sm text-crystal">More languages coming later.</p>}</DialogContent></Dialog>
+      <Dialog open={panel !== null} onOpenChange={(v) => { if (!v) setPanel(null); }}><DialogContent className="ice-panel w-[calc(100%-32px)] max-w-sm"><DialogTitle className="text-3d">{panel === "settings" ? "Settings" : "Language"}</DialogTitle><DialogDescription className="text-crystal">{panel === "settings" ? "Sound effects and menu wind" : "English"}</DialogDescription>{panel === "settings" ? <SettingsBody sound={sound} ambient={ambient} /> : <p className="text-sm text-crystal">More languages coming later.</p>}</DialogContent></Dialog>
     </header>
   );
 }
@@ -116,8 +123,24 @@ function BottomNav() {
   );
 }
 
+/** Plays the menu wind after the first tap, and stops it in games, hidden tabs or when turned off. */
+function useAmbientWind() {
+  const { sound, ambient } = useGame();
+  useEffect(() => {
+    if (!sound || !ambient) { stopWind(); return; }
+    let unlocked = false;
+    const sync = () => { if (unlocked && !document.hidden && !document.body.hasAttribute("data-arcade-open")) startWind(); else stopWind(); };
+    const unlock = () => { unlocked = true; sync(); };
+    window.addEventListener("pointerdown", unlock, { once: true });
+    const mo = new MutationObserver(sync); mo.observe(document.body, { attributes: true, attributeFilter: ["data-arcade-open"] });
+    document.addEventListener("visibilitychange", sync);
+    return () => { window.removeEventListener("pointerdown", unlock); mo.disconnect(); document.removeEventListener("visibilitychange", sync); stopWind(); };
+  }, [sound, ambient]);
+}
+
 export function Shell({ children }: { children: ReactNode }) {
   useDecorationVisibility();
+  useAmbientWind();
   useEffect(() => { loadGame(); }, []);
   return (
     <div className="snowquest-shell relative min-h-screen overflow-x-hidden">
