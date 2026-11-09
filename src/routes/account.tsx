@@ -152,7 +152,7 @@ function AccountSheet({ sheet, onClose }: { sheet: string | null; onClose: () =>
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   function close() { setCode(""); setMsg(null); onClose(); }
   function redeem(el: Element) {
-    let r = { reward: 0, error: undefined as string | undefined };
+    let r: { reward: number; error?: string } = { reward: 0 };
     updateGame((s) => { const x = redeemPromo(s, code); r = x; return x.state; });
     if (r.error) { setMsg({ ok: false, text: r.error }); return; }
     sfx.chime(); celebrate(r.reward, el, "__skip"); setMsg({ ok: true, text: `+${r.reward} added to your balance!` }); setCode("");

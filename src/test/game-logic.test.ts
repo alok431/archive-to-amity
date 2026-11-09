@@ -53,7 +53,7 @@ describe("redeemPromo", () => {
   it("adds the code reward once and rejects reuse and unknown codes", () => {
     const s = initialState();
     const a = redeemPromo(s, "snow100");
-    expect(a.reward).toBe(PROMO_CODES.SNOW100);
+    expect(a.reward).toBe(PROMO_CODES["SNOW100"]);
     expect(a.state.balance).toBe(s.balance + 100);
     expect(redeemPromo(a.state, "SNOW100").reward).toBe(0);
     expect(redeemPromo(s, "NOPE").error).toBeTruthy();
